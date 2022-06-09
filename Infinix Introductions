@@ -1,0 +1,120 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+local ScreenGui = Instance.new("ScreenGui")
+local BlackTransparentScreen = Instance.new("Frame")
+local VHubLogo = Instance.new("ImageLabel")
+local BeautifulMessage = Instance.new("TextLabel")
+local LoadingText = Instance.new("TextLabel")
+local blur = Instance.new("BlurEffect")
+local TS = game:GetService("TweenService")
+local ContentProvider = game:GetService("ContentProvider")
+local vAsset = {
+    "http://www.roblox.com/asset/?id=9844409209"
+    }
+
+ContentProvider:PreloadAsync(vAsset);
+--Properties:
+
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+
+BlackTransparentScreen.Name = "Black Transparent Screen"
+BlackTransparentScreen.Parent = ScreenGui
+BlackTransparentScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackTransparentScreen.BackgroundTransparency = 1
+BlackTransparentScreen.Size = UDim2.new(1, 0, 1, 0)
+
+VHubLogo.Name = "VHub Logo"
+VHubLogo.Parent = ScreenGui
+VHubLogo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+VHubLogo.BackgroundTransparency = 1.000
+VHubLogo.Position = UDim2.new(0.447, 0, 10, 0)
+VHubLogo.Size = UDim2.new(0.165128335, 1, 0.16508539, 0)
+VHubLogo.SizeConstraint = Enum.SizeConstraint.RelativeYY
+VHubLogo.Image = vAsset[1]
+VHubLogo.ImageTransparency = 1
+
+BeautifulMessage.Name = "Beautiful Message"
+BeautifulMessage.Parent = ScreenGui
+BeautifulMessage.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+BeautifulMessage.BackgroundTransparency = 1.000
+BeautifulMessage.Position = UDim2.new(0.25, 0, 0, 0)
+BeautifulMessage.Size = UDim2.new(0.5, 0, 0.100000001, 0)
+BeautifulMessage.Font = Enum.Font.FredokaOne
+BeautifulMessage.Text = "This was made by the InfiniX Team"
+BeautifulMessage.TextColor3 = Color3.fromRGB(255, 255, 255)
+BeautifulMessage.TextScaled = true
+BeautifulMessage.TextSize = 20.000
+BeautifulMessage.TextWrapped = true
+BeautifulMessage.TextTransparency = 1
+BeautifulMessage.TextStrokeTransparency = 0
+
+blur.Name = "blur"
+blur.Parent = game.Lighting
+blur.Size = 0
+
+VHubLogo:TweenPosition(UDim2.new(0.46, 0,0.28, 0),"Out","Quint",1.5,true)
+BeautifulMessage:TweenPosition(UDim2.new(0.25, 0,0.95, 0),"Out","Quint",0.25,true)
+
+local BS = {
+    BackgroundTransparency = 1
+}
+local BM = {
+    Position = UDim2.new(0.25,0,0.60,0),
+    TextTransparency = 1
+}
+local VHub = {
+    ImageTransparency = 1
+}
+local Blur = {
+    Size = 0
+}
+
+local BS2 = {
+    BackgroundTransparency = 0.525
+}
+
+local BM2 = {
+    Position = UDim2.new(0.25,0,0.45,0),
+    TextTransparency = 0
+}
+local VHub2 = {
+    ImageTransparency = 0
+}
+local Blur2 = {
+    Size = 100
+}
+
+local TweenInfo001 = TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+local TweenInfo002 = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+
+local BSP = TS:Create(BlackTransparentScreen, TweenInfo001, BS)
+local BMP = TS:Create(BeautifulMessage, TweenInfo001, BM)
+local VHubP = TS:Create(VHubLogo, TweenInfo001, VHub)
+local BlurP = TS:Create(blur, TweenInfo001, Blur)
+
+local BSP2 = TS:Create(BlackTransparentScreen,TweenInfo001,BS2)
+local BMP2 = TS:Create(BeautifulMessage, TweenInfo001, BM2)
+local VHubP2 = TS:Create(VHubLogo, TweenInfo001, VHub2)
+local BlurP2 = TS:Create(blur, TweenInfo001, Blur2)
+
+BSP2:Play()
+BMP2:Play()
+VHubP2:Play()
+BlurP2:Play()
+delay(2.5,function()
+task.spawn(function()
+BSP:Play()
+BMP:Play()
+VHubP:Play()
+VHubLogo:TweenPosition(UDim2.new(0.46,0,10,0),"In","Quint",2.5)
+BlurP:Play()
+delay(1, function()
+ScreenGui:Destroy()
+end)
+end)
+    end)
