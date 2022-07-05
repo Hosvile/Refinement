@@ -3132,5 +3132,5 @@ return Tabs
 end
 return Tab
 end
+print(os.clock()-start
 return Lib
-print(os.clock()-start)
