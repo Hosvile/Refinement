@@ -3132,25 +3132,5 @@ return Tabs
 end
 return Tab
 end
-
-local AaA
-local window = Lib:CreateWindow("InfiniX.Lib")
-
-
-local tab = window:CreateTab("Main")
-local tabs = window:CreateTab("Main")
-
-tab:Search()
-
-tab:CreateColor("Color Picker",function(c) print(c) game:GetService("StarterGui"):SetCore("DevConsoleVisible",true) end)
-
-tab:CreateButton("Button", function () game:GetService("StarterGui"):SetCore("DevConsoleVisible",true) end)
-
-tab:CreateToggle("Toggle/Checkbox",true,function(b) print(b) end)
-
-tab:CreateTextbox("Textbox",function(t) print(t) end)
-
-tab:CreateSlider("Slider", 0, 1000, function(v) print(v) end)
-
-tab:CreateDropdown("Dropdown",{"Opt. 1", "Opt. 2", "Opt. 3"},function(c) print(c) end)
+return Lib
 print(os.clock()-start)
