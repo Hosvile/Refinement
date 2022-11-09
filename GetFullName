@@ -1,4 +1,4 @@
-function GetFullName(Instances)
+getgenv().GetFullName = function(Instances)
     local charset = {}
 
     for i = 48,  57 do
