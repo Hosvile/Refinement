@@ -1,4 +1,4 @@
-return function GetFullName(Instances)
+function GetFullName(Instances)
     local charset = {}
 
     for i = 48,  57 do
@@ -57,3 +57,5 @@ return function GetFullName(Instances)
 
     return NewStr
 end
+
+return GetFullName
