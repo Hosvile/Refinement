@@ -3140,6 +3140,8 @@ end
 
 function Ft:SetOptions(Opt)
 	for i, v in pairs(dropdown:GetChildren()) do
+ddSize = ddSize - 48
+dropdown.Size = dropdown.Size - UDim2.new(0,0,0.125,0)
 v:Destroy()
 end
 for i, v in pairs(Opt) do
