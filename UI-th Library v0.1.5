@@ -3146,11 +3146,8 @@ for i, v in pairs(dropdown:GetChildren()) do
 if not v.Name:match("UI") then
 dropdown.Size = dropdown.Size - UDim2.new(0,0,0.125,0)
 ddSize = ddSize - 48
-if t == false then
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
-end
 v:Destroy()
-wait(0.05)
 end
 	end
 
@@ -3173,15 +3170,12 @@ end
 	bakaButton.Text = ">"
 	dropdown.Name = "Drop$down"
 	end
-
+	
+local previous_ = ""
 for i, v in pairs(Opt) do
 local breaks = false
-for i, vc in pairs(dropdown:GetChildren()) do
-if v == tostring(vc) then 
-vc:Destroy()
-end
-end
-if not breaks then
+if not breaks and v ~= previous_ then
+previous_ = v
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
@@ -3232,7 +3226,14 @@ end)
 labela.Text = dropor.Text
 end
 
+inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk)
+
 dropor.MouseButton1Click:Connect(cliche)
+for i, vc in pairs(dropdown:GetChildren()) do
+if v == tostring(vc) then 
+vc:Destroy()
+end
+end
 end
 end
 end
