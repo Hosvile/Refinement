@@ -3142,22 +3142,20 @@ return nil
 end
 
 function Ft:SetOptions(Opt)
-dropdown.Visible = false
-bakaButton.Text = ">"
-dropdown.Name = "Drop$down"
 
-for i, v in pairs(dropdown:GetChildren()) do
-ddSize = ddSize - 48
+for i, v in pairs(dropdown:GetChildren()) do	
+if not v.Name:match("UI") and not v.Name:match("Pad") then
 dropdown.Size = dropdown.Size - UDim2.new(0,0,0.125,0)
+inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
 end
+	end
 
 for i, v in pairs(Opt) do
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
-ddSize = ddSize + 48
 dropdown.Size = dropdown.Size + UDim2.new(0,0,0.125,0)
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
@@ -3199,38 +3197,11 @@ labelb.Visible = true
 pcall(function()
 	currentsi = dropor.Text
 	callback(dropor.Text,labela)
-	end)
+end)
 labela.Text = dropor.Text
 end
 
-inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk)
-
 dropor.MouseButton1Click:Connect(cliche)
-
-t = false
-
-task.spawn(function()
-	if Serchs == "" then
-	inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk-ddSize)
-	end
-	end)
-	
-	dropdown.Visible = false
-	bakaButton.Text = ">"
-	dropdown.Name = "Drop$down"
-	
-t = true
-
-task.spawn(function()
-	if Serchs == "" then
-	inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk+ddSize)
-	end
-	end)
-dropdown.Visible = true
-bakaButton.Text = "v"
-dropdown.Name = "DropSdown"
-
-end
 end
 
 return Ft
