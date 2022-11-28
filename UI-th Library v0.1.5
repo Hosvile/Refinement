@@ -3146,6 +3146,7 @@ function Ft:SetOptions(Opt)
 for i, v in pairs(dropdown:GetChildren()) do	
 if not v.Name:match("UI") and not v.Name:match("Pad") then
 dropdown.Size = dropdown.Size - UDim2.new(0,0,0.125,0)
+ddSize = ddSize - 48
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
 end
