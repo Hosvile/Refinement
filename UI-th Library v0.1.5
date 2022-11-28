@@ -3123,10 +3123,11 @@ local Instances = {
 return Instances
 end
 
-function Ft:Exe(arg)
+function Ft:Exe(arg,args)
 local arg = arg or currentsi
+local args = args or labela
 pcall(function()
-	callback(currentsi,labela)
+	callback(currentsi)
 	end)
 end
 
