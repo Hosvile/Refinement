@@ -3139,13 +3139,6 @@ return nil
 end
 
 function Ft:SetOptions(Opt)
-t = false
-
-task.spawn(function()
-	if Serchs == "" then
-	inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk-ddSize)
-	end
-	end)
 dropdown.Visible = false
 bakaButton.Text = ">"
 dropdown.Name = "Drop$down"
@@ -3211,6 +3204,14 @@ inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas
 
 dropor.MouseButton1Click:Connect(cliche)
 
+t = false
+
+task.spawn(function()
+	if Serchs == "" then
+	inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk-ddSize)
+	end
+	end)
+	
 t = true
 
 task.spawn(function()
