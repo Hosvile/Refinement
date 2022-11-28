@@ -3057,7 +3057,6 @@ local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
 ddSize = ddSize + 48
-dropdown.Size = dropdown.Size + UDim2.new(0,0,0.125,0)
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
 dropor.Parent = dropdown
@@ -3071,6 +3070,8 @@ dropor.TextColor3 = Color3.fromRGB(255, 255, 255)
 dropor.TextSize = 11.000
 dropor.TextWrapped = true
 dropor.SizeConstraint = "RelativeXX"
+local DSize = dropor.Size.Y.Scale
+dropdown.Size = dropdown.Size + UDim2.new(0,0,(DSize+.05),0)
 
 label.Name = "inBtn"
 label.Parent = dropor
