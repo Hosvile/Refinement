@@ -3174,6 +3174,13 @@ end
 	end
 
 for i, v in pairs(Opt) do
+local breaks = false
+for i, vc in pairs(dropdown:GetChildren()) do
+if v == tostring(vc) then 
+breaks = true
+end
+end
+if not breaks then
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
@@ -3225,6 +3232,7 @@ labela.Text = dropor.Text
 end
 
 dropor.MouseButton1Click:Connect(cliche)
+end
 end
 end
 
