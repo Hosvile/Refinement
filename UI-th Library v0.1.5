@@ -3151,11 +3151,32 @@ v:Destroy()
 end
 	end
 
+	if t then
+	task.spawn(function()
+		if Serchs == "" then
+		inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk+ddSize)
+		end
+		end)
+	dropdown.Visible = true
+	bakaButton.Text = "v"
+	dropdown.Name = "DropSdown"
+	else
+		task.spawn(function()
+		if Serchs == "" then
+		inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk-ddSize)
+		end
+		end)
+	dropdown.Visible = false
+	bakaButton.Text = ">"
+	dropdown.Name = "Drop$down"
+	end
+
 for i, v in pairs(Opt) do
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
+ddSize = ddSize + 48
 dropdown.Size = dropdown.Size + UDim2.new(0,0,0.125,0)
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
