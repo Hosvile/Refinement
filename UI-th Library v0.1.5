@@ -3031,6 +3031,7 @@ Lib:UIList(dropdown,4)
 local t = false
 bakaButton.MouseButton1Click:Connect(function()
 	t = not t
+print(inTab.CanvasSize,t)
 	if t then
 	task.spawn(function()
 		if Serchs == "" then
@@ -3210,7 +3211,7 @@ end)
 labela.Text = dropor.Text
 end
 
-inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk)
+--inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk)
 
 dropor.MouseButton1Click:Connect(cliche)
 for i, vc in pairs(dropdown:GetChildren()) do
