@@ -3163,12 +3163,9 @@ end
 local previous_ = ""
 
 for i, v in pairs(Opt) do
-print(v,"first")
 if not table.find(Added,v) then
-print(v,"sec")
 local breaks = false
 if not breaks and v ~= previous_ then
-print(v,"third")
 previous_ = v
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
@@ -3227,16 +3224,6 @@ end
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset+bigChunk)
 
 dropor.MouseButton1Click:Connect(cliche)
---[[
-for i, vc in pairs(dropdown:GetChildren()) do
-if not vc.ClassName:match("UI") then
-if v == vc.Text then 
-ddSize = ddSize - sizes or tosized
-inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
-vc:Destroy()
-end
-end
-end]]
 end
 end
 end
