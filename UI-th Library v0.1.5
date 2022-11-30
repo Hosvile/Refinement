@@ -3053,12 +3053,13 @@ print(inTab.CanvasSize,t,ddSize)
 	end
 	end)
 
+local tosized = 30
 for i, v in pairs(options) do
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
-ddSize = ddSize + 38
+ddSize = ddSize + tosized
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
 dropor.Parent = dropdown
@@ -3146,14 +3147,14 @@ return nil
 end
 
 function Ft:SetOptions(Opt,sizes)
-local sizes = sizes or 38
+local sizes = sizes or tosized
 local PrevT = {}
 local Added = {}
 for i, v in pairs(dropdown:GetChildren()) do	
 if not v.ClassName:match("UI") then
 dropdown.Size = UDim2.new(0.95,0,0,0)
 --table.insert(PrevT,v.Text)
-ddSize = ddSize - sizes or 38
+ddSize = ddSize - sizes or tosized
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
 end
@@ -3187,7 +3188,7 @@ local DSize = dropor.Size.Y.Scale
 local indexs = #Opt
 dropdown.Size = dropdown.Size + UDim2.new(0,0,DSize+indexs/(indexs*100)+(DSize/(indexs*10)),0)
 
-ddSize = ddSize + sizes or 38
+ddSize = ddSize + sizes or tosized
 table.insert(Added,v)
 
 label.Name = "inBtn"
@@ -3226,7 +3227,7 @@ dropor.MouseButton1Click:Connect(cliche)
 for i, vc in pairs(dropdown:GetChildren()) do
 if not vc.ClassName:match("UI") then
 if v == vc.Text then 
-ddSize = ddSize - sizes or 38
+ddSize = ddSize - sizes or tosized
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 vc:Destroy()
 end
