@@ -3219,6 +3219,8 @@ inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas
 dropor.MouseButton1Click:Connect(cliche)
 for i, vc in pairs(dropdown:GetChildren()) do
 if v == vc.Text then 
+ddSize = ddSize - 48
+inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 vc:Destroy()
 end
 end
