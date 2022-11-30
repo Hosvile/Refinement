@@ -3031,7 +3031,7 @@ Lib:UIList(dropdown,4)
 local t = false
 bakaButton.MouseButton1Click:Connect(function()
 	t = not t
-print(inTab.CanvasSize,t)
+print(inTab.CanvasSize,t,ddSize)
 	if t then
 	task.spawn(function()
 		if Serchs == "" then
