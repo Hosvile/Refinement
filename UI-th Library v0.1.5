@@ -3145,7 +3145,7 @@ currents = labela
 return nil
 end
 
-function Ft:SetOptions(Opt)
+function Ft:SetOptions(Opt,sizes)
 local PrevT = {}
 local Added = {}
 for i, v in pairs(dropdown:GetChildren()) do	
@@ -3169,7 +3169,7 @@ local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
-ddSize = ddSize + 48
+ddSize = ddSize + sizes or 48
 table.insert(Added,v)
 
 dropor.AutoButtonColor = false
