@@ -3163,9 +3163,12 @@ end
 local previous_ = ""
 
 for i, v in pairs(Opt) do
+print(v,"first")
 if not table.find(Added,v) then
+print(v,"sec")
 local breaks = false
 if not breaks and v ~= previous_ then
+print(v,"third")
 previous_ = v
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
