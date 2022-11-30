@@ -3058,7 +3058,7 @@ local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
-ddSize = ddSize + 48
+ddSize = ddSize + 38
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
 dropor.Parent = dropdown
@@ -3152,7 +3152,7 @@ for i, v in pairs(dropdown:GetChildren()) do
 if not v.ClassName:match("UI") then
 dropdown.Size = UDim2.new(0.95,0,0,0)
 --table.insert(PrevT,v.Text)
-ddSize = ddSize - sizes or 48
+ddSize = ddSize - sizes or 38
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
 end
@@ -3168,9 +3168,6 @@ previous_ = v
 local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
-
-ddSize = ddSize + sizes or 48
-table.insert(Added,v)
 
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
@@ -3188,6 +3185,9 @@ dropor.SizeConstraint = "RelativeXX"
 local DSize = dropor.Size.Y.Scale
 local indexs = #Opt
 dropdown.Size = dropdown.Size + UDim2.new(0,0,DSize+indexs/(indexs*100)+(DSize/(indexs*10)),0)
+
+ddSize = ddSize + sizes or 38
+table.insert(Added,v)
 
 label.Name = "inBtn"
 label.Parent = dropor
@@ -3225,7 +3225,7 @@ dropor.MouseButton1Click:Connect(cliche)
 for i, vc in pairs(dropdown:GetChildren()) do
 if not vc.ClassName:match("UI") then
 if v == vc.Text then 
-ddSize = ddSize - sizes or 48
+ddSize = ddSize - sizes or 38
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 vc:Destroy()
 end
