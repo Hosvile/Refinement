@@ -3152,7 +3152,7 @@ for i, v in pairs(dropdown:GetChildren()) do
 if not v.ClassName:match("UI") then
 dropdown.Size = UDim2.new(0.95,0,0,0)
 --table.insert(PrevT,v.Text)
-ddSize = ddSize - 48
+ddSize = ddSize - sizes or 48
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
 end
@@ -3225,7 +3225,7 @@ dropor.MouseButton1Click:Connect(cliche)
 for i, vc in pairs(dropdown:GetChildren()) do
 if not vc.ClassName:match("UI") then
 if v == vc.Text then 
-ddSize = ddSize - 48
+ddSize = ddSize - sizes or 48
 inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 vc:Destroy()
 end
