@@ -3146,9 +3146,11 @@ return nil
 end
 
 function Ft:SetOptions(Opt)
+local PrevT = {}
 for i, v in pairs(dropdown:GetChildren()) do	
 if not v.Name:match("UI") then
 dropdown.Size = UDim2.new(0.95,0,0,0)
+--table.insert(PrevT,v.Text)
 ddSize = ddSize - 48
 --inTab.CanvasSize = UDim2.new(0,0,0,inTabCanvas.AbsoluteContentSize.Y+inTabCanvas.Padding.Offset-bigChunk)
 v:Destroy()
@@ -3164,6 +3166,7 @@ local dropor = Instance.new("TextButton")
 local label = Instance.new("TextLabel")
 local UIGradient = Instance.new("UIGradient")
 
+ddSize = ddSize + 48
 dropor.AutoButtonColor = false
 dropor.Name = "inBtn"
 dropor.Parent = dropdown
