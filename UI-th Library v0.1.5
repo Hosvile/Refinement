@@ -396,7 +396,7 @@ end;
 
 local lastMousePos
 local lastGoalPos
-local DRAG_SPEED = (50); -- // The speed of the UI darg.
+local DRAG_SPEED = (getgenv().DragSpeed or 25); -- // The speed of the UI darg.
 function Update(dt)
 if not (startPos) then return end;
 if not (dragging) and (lastGoalPos) then
@@ -515,7 +515,7 @@ end;
 
 local lastMousePos
 local lastGoalPos
-local DRAG_SPEED = (50); -- // The speed of the UI darg.
+local DRAG_SPEED = (getgenv().DragSpeed or 25); -- // The speed of the UI darg.
 function Update(dt)
 if not (startPos) then return end;
 if not (dragging) and (lastGoalPos) then
