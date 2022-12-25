@@ -374,7 +374,7 @@ local desc = desc or "Mole"
 mainFrame.Active = true
 
 table.insert(ToDels_,ScreenGui)
-ScreenGui.Name = "ScreenGui"
+ScreenGui.Name = Lib:Randomized()
 ScreenGui.Parent = CoreGui
 
 ScreenGui.Enabled = true
@@ -3279,7 +3279,7 @@ designA[prop] = new
 end
 return update,designA,inBtn
 end
-return Tabs,inTab,inTabCanvas
+return Tabs,tabBtn,inTab,inTabCanvas
 end
 return Tab
 end
