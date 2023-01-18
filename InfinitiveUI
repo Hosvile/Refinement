@@ -37,7 +37,7 @@ local PointerIn = "rbxassetid://12080467938"
 local DropIn = "rbxassetid://12080300828"
 
 CProvider:PreloadAsync({
-	BarIn,OutIn,MenuIn,MoreIn,TogOn,TogOff,DropIn
+	BarIn,SearchIn,MenuIn,OutIn,MoreIn,TogOn,TogOff,DropIn
 })
 
 function Lib:Randomized()
@@ -85,7 +85,7 @@ local pos = gui.AbsolutePosition + guiInset
 return pos.X + gui.AbsoluteSize.X <= game.Workspace.CurrentCamera.ViewportSize.X and pos.X >= 0, pos.Y + gui.AbsoluteSize.Y <= game.Workspace.CurrentCamera.ViewportSize.Y and pos.Y >= 0
 end
 
-function Lib:CreateWindow(name,func,tabnum)
+function Lib:CreateWindow(name,tabnum,winsize,func)
 local name = tostring(name) or "InfiniX"
 local func = func or function() end
 
@@ -110,13 +110,13 @@ end
 
 --Original Size
 --Window.Size = UDim2.new(0.38976422764228, 0, 0.49994444444444,0)
-
+local winsize = winsize or 0.49994444444444
 local Window = Instance.new("Frame")
 Window.Name = "Window"
 Window.BackgroundColor3 = Color3.fromRGB(39,39,39)
 Window.Position = UDim2.new(0.5,0,0.5, 0)
 Window.AnchorPoint = Vector2.new(0.5,0.5)
-Window.Size = UDim2.new(0.91, 0, 0.49994444444444,0)
+Window.Size = UDim2.new(0.41005555555556+winsize, 0, winsize,0)
 Window.Transparency = 0.5
 Window.BorderSizePixel = 0
 Window.ClipsDescendants = false
@@ -141,6 +141,75 @@ Bar.BackgroundTransparency = 1
 Bar.Parent = Window
 Lib:UICorner(Bar,4)
 
+local Padding = Instance.new("Frame")
+Padding.Visible = SearchUp or false
+Padding.Name = "TextBoxPadding"
+Padding.BorderSizePixel = 0
+Padding.Active = true
+Padding.BackgroundColor3 = Color3.fromRGB(50,50,50)
+Padding.Position = UDim2.new(0.556, 0, 0.505, 0)
+Padding.AnchorPoint = Vector2.new(0.5,0.5)
+Padding.Size = UDim2.new(0.54, 0, 0.6, 0)
+Padding.Transparency = 0
+Padding.BackgroundTransparency = 0
+Padding.BorderSizePixel = 0
+Padding.ZIndex = 4
+Padding.SizeConstraint = "RelativeXY"
+Padding.Parent = Bar
+Lib:UICorner(Padding,4)
+
+local Textbox = Instance.new("TextBox")
+Textbox.Visible = SearchUp or false
+Textbox.Name = "TextBox"
+Textbox.BorderSizePixel = 0
+Textbox.Active = true
+Textbox.BackgroundColor3 = Color3.fromRGB(39,39,39)
+Textbox.TextColor3 = Color3.fromRGB(255,255,255)
+Textbox.Position = UDim2.new(0.564, 0, 0.505, 0)
+Textbox.AnchorPoint = Vector2.new(0.5,0.5)
+Textbox.Size = UDim2.new(0.54, 0, 0.6, 0)
+Textbox.Transparency = 0
+Textbox.BackgroundTransparency = 0
+Textbox.BorderSizePixel = 0
+Textbox.RichText = true
+Textbox.Font = "Nunito"
+Textbox.TextSize = 10
+Textbox.Text = "Text"
+Textbox.PlaceholderText = "Search"
+Textbox.ZIndex = 4
+Textbox.TextXAlignment = "Left"
+Textbox.SizeConstraint = "RelativeXY"
+Textbox.Parent = Bar
+Lib:UICorner(Textbox,4)
+
+local Base = {}
+function MatchSearch()
+--Textbox.Text = " "..Textbox.Text
+local matched = false
+for i, t in pairs(Base) do
+local v = t[1]
+local Tab = t[2]
+local Container = v.Parent.Parent
+if string.lower(v.Name):match(Textbox.Text:lower()) and not v.ClassName:match("UI") then
+matched = true
+v.Visible = true
+elseif Textbox.Text == "" and not v.ClassName:match("UI") then
+matched = false
+Tab.Visible = true
+v.Visible = true
+elseif not v.ClassName:match("UI") then
+v.Visible = false
+end
+if matched == false then
+Tab.Visible = false
+elseif matched == true then
+Tab.Visible = true
+end
+end
+end
+
+DC_[#DC_+1] = Textbox:GetPropertyChangedSignal("Text"):Connect(MatchSearch)
+
 local Search = Instance.new("ImageButton")
 Search.Visible = true
 Search.Name = "Search"
@@ -149,15 +218,30 @@ Search.Image = SearchIn
 Search.ImageTransparency = 0
 Search.Active = true
 Search.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Search.Position = UDim2.new(0.875, 0, 0.505, 0)
+Search.Position = UDim2.new(0.855, 0, 0.505, 0)
 Search.AnchorPoint = Vector2.new(0.5,0.5)
-Search.Size = UDim2.new(0.0375, 0, 0.925, 0)
+Search.Size = UDim2.new(0.0375, 0, 0.7, 0)
 Search.Transparency = 0
 Search.BackgroundTransparency = 1
 Search.BorderSizePixel = 0
 Search.ZIndex = 4
 Search.SizeConstraint = "RelativeXY"
 Search.Parent = Bar
+
+local Googling = false
+DC_[#DC_+1] = Search.MouseButton1Down:Connect(function()
+	Googling = true
+	end)
+
+DC_[#DC_+1] = Search.MouseButton1Up:Connect(function()
+	if Googling == true then
+	Padding.Visible = not Padding.Visible
+	Textbox.Visible = not Textbox.Visible
+	Textbox.Text = ""
+--MatchSearch()
+	Googling = false
+	end
+	end)
 
 local Menu = Instance.new("ImageButton")
 Menu.Visible = true
@@ -274,7 +358,7 @@ DC_[#DC_+1] = toDrag.InputChanged:Connect(function(input)
 DC_[#DC_+1] = runService.Heartbeat:Connect(Update)
 
 local Scroll = Instance.new("Frame")
-Scroll.Name = "Categories"
+Scroll.Name = "ScrollTab"
 Scroll.BackgroundColor3 = Color3.fromRGB(52,52,52)
 Scroll.Position = UDim2.new(0.025,0,0.125, 0)
 Scroll.Size = UDim2.new(0.21, 0, 0.825,0)
@@ -284,7 +368,7 @@ Scroll.Parent = Window
 
 local Categories = Instance.new("ScrollingFrame")
 Categories.Active = true
-Categories.Name = "Scroll"
+Categories.Name = "Categories"
 Categories.BackgroundColor3 = Color3.fromRGB(52,52,52)
 Categories.Size = UDim2.new(1, 0, 1, 0)
 Categories.Transparency = 1
@@ -321,7 +405,7 @@ end
 local TabColor = Color3.fromRGB(65,65,65)
 local Tab = Instance.new("TextButton")
 Tab.Active = true
-Tab.Name = "Tab"
+Tab.Name = name
 Tab.BackgroundColor3 = Color3.fromRGB(65,65,65)
 Tab.Position = UDim2.new(0, 0, 0, 0)
 Tab.Size = UDim2.new(0.875, 0, 0.145,0)
@@ -407,7 +491,7 @@ Text.Parent = Tab
 
 local Inside = Instance.new("Frame")
 Inside.Active = false
-Inside.Name = name
+Inside.Name = "ScrollFrame"
 Inside.BackgroundColor3 = Color3.fromRGB(30,30,30)
 Inside.Position = UDim2.new(1.125, 0, 0, 0)
 Inside.Size = UDim2.new(3.4, 0, 1,0)
@@ -432,7 +516,7 @@ table.insert(ExistingTabs,Inside)
 
 local InScroll = Instance.new("ScrollingFrame")
 InScroll.Active = true
-InScroll.Name = name
+InScroll.Name = "InScroll"
 InScroll.BackgroundColor3 = Color3.fromRGB(30,30,30)
 InScroll.Position = UDim2.new(0, 0, 0, 0)
 InScroll.Size = UDim2.new(1, 0, 1,0)
@@ -449,6 +533,7 @@ Lib:UICorner(Scroll,5)
 local UIPad = Lib:UIPad(InScroll)
 UIPad.PaddingTop = UDim.new(0,InScroll.AbsoluteSize.Y*0.03)
 local UIList = Lib:UIList(InScroll,0,InScroll.AbsoluteSize.Y*0.015)
+local ScrollList = UIList
 
 local Clicked = function()
 for i, v in pairs(TabTable) do
@@ -538,8 +623,10 @@ local scroll = scroll or InScroll
 local more = more or MoreVis
 if scroll.CanvasSize.Y.Offset > scroll.AbsoluteSize.Y and scroll.CanvasPosition.Y >= (scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteSize.Y)*0.99 then
 more.Visible = false
+more.Active = false
 elseif scroll.CanvasSize.Y.Offset > scroll.AbsoluteSize.Y and scroll.CanvasPosition.Y <= (scroll.AbsoluteCanvasSize.Y-scroll.AbsoluteSize.Y)*0.99 then
 more.Visible = true
+more.Active = false
 end
 end
 
@@ -561,6 +648,11 @@ Inner.ZIndex = 2
 Inner.Parent = InScroll
 Lib:UICorner(Inner,5)
 
+local InnerBase = {
+	Inner,Tab
+}
+table.insert(Base,InnerBase)
+
 local Shade = Instance.new("Frame")
 Shade.Active = false
 Shade.Name = name
@@ -575,6 +667,7 @@ Lib:UICorner(Shade,5)
 
 local Text = Instance.new("TextLabel")
 Text.Name = "Text"
+Text.Active = false
 Text.BackgroundColor3 = Color3.fromRGB(0,0,0)
 Text.Position = UDim2.new(0.015, 0, 0.1, 0)
 Text.Size = UDim2.new(0.75, 0, 0.5,0)
@@ -789,11 +882,11 @@ Lib:UICorner(Slider,10)
 local Formed = Instance.new("TextLabel")
 Formed.Name = "Formed"
 Formed.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Formed.Position = UDim2.new(0.76, 0, 0.15, 0)
-Formed.Size = UDim2.new(0.2, 0, 0.4,0)
+Formed.Position = UDim2.new(0.7, 0, 0.15, 0)
+Formed.Size = UDim2.new(3.5, 0, 0.4,0)
 Formed.TextColor3 = Color3.fromRGB(255,255,255)
 Formed.TextScaled = true
-Formed.TextWrapped = false
+Formed.TextWrapped = true
 Formed.Transparency = 0.45
 Formed.BorderSizePixel = 0
 Formed.BackgroundTransparency = 1
@@ -802,7 +895,7 @@ Formed.Text = string.format("%d / %d", val, max)
 Formed.RichText = true
 Formed.Font = "Nunito"
 Formed.TextXAlignment = "Right"
-Formed.SizeConstraint = "RelativeXY"
+Formed.SizeConstraint = "RelativeYY"
 Formed.ZIndex = 4
 Formed.Parent = Inner
 
@@ -880,6 +973,7 @@ DC_[#DC_+1] = mouse.Move:Connect(function()
 	local ap = Vector2.new(Slipper.AbsolutePosition.X, Slipper.AbsolutePosition.Y)
 	local as = Vector2.new(Slipper.AbsoluteSize.X, Slipper.AbsoluteSize.Y)
 	if down == true then --if true, then this represents the mouse being dragged
+	InScroll.ScrollingEnabled = false
 	if mouse.X < ap.X then --out of bounds (to the left)
 	Slider.Size = UDim2.new(0, 0, 0.05, 0)
 	elseif mouse.X > (ap.X + as.X) then --out of bounds (to the right)
@@ -895,6 +989,7 @@ DC_[#DC_+1] = UserInputService.InputBegan:Connect(function(input)
 	input.Changed:Connect(function()
 		if input.UserInputState == Enum.UserInputState.End then
 		if down == true then
+		InScroll.ScrollingEnabled = true
 		func(val)
 		Pointer.Visible = false
 		down = false
@@ -912,6 +1007,7 @@ end
 return Add,name,Inner,Shade,Text
 end
 
+local ScaledList = false
 function Feat:CreateDropdown(name,options,visible,func)
 local name = tostring(name) or "InfiniX"
 local func = func or function() end
@@ -931,20 +1027,20 @@ Arrow.Image = DropIn
 Arrow.ImageTransparency = 0
 Arrow.Active = false
 Arrow.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Arrow.Position = UDim2.new(0.925, 0, 0.25, 0)
---Arrow.AnchorPoint = Vector2.new(0.5,0.5)
-Arrow.Size = UDim2.new(0.04, 0, 0.525, 0)
+Arrow.Position = UDim2.new(0.925,0,0.5,0)
+Arrow.AnchorPoint = Vector2.new(0,0.5)
+Arrow.Size = UDim2.new(0.5, 0, 0.5, 0)
 Arrow.Transparency = 0
 Arrow.BackgroundTransparency = 1
 Arrow.BorderSizePixel = 0
 Arrow.ZIndex = 5
-Arrow.SizeConstraint = "RelativeXY"
+Arrow.SizeConstraint = "RelativeYY"
 Arrow.Rotation = 180
 Arrow.Parent = Inner
 
 local Container = Instance.new("ScrollingFrame")
 Container.Visible = visible
-Container.Active = true
+Container.Active = false
 Container.Name = "Container"
 Container.BackgroundColor3 = Color3.fromRGB(39,39,39)
 Container.Position = UDim2.new(0.2, 0, 1.15, 0)
@@ -968,17 +1064,24 @@ DC_[#DC_+1] = Inner.MouseButton1Down:Connect(function()
 	InnerDown = true
 	end)
 
-DC_[#DC_+1] = Inner.MouseButton1Up:Connect(function()
+local ContainerSize = math.round(math.floor(Container.AbsoluteSize.Y*1.02))
+
+local ScrollPos
+DC_[#DC_+1] = Inner.MouseButton1Click:Connect(function()
 	if InnerDown == true then
 	visible = not visible
 	if visible == true then
 	Arrow.Rotation = 0
 	Container.Visible = true
-	InScroll.CanvasSize = UDim2.new(0,0,0,InScroll.AbsoluteCanvasSize.Y+Container.AbsoluteSize.Y*1.02)
+	InScroll.CanvasSize = UDim2.new(0,0,0,InScroll.AbsoluteCanvasSize.Y+ContainerSize)
+	if ScrollPos then
+	InScroll.CanvasPosition = Vector2.new(0,ScrollPos.Y)
+end
 	elseif visible == false then
 	Arrow.Rotation = 180
 	Container.Visible = false
-	InScroll.CanvasSize = UDim2.new(0,0,0,InScroll.AbsoluteCanvasSize.Y-Container.AbsoluteSize.Y*1.02)
+	ScrollPos = InScroll.CanvasPosition
+	InScroll.CanvasSize = UDim2.new(0,0,0,InScroll.AbsoluteCanvasSize.Y-ContainerSize)
 	end
 	InnerDown = false
 	end
@@ -1052,6 +1155,74 @@ end
 return Add,name,Inner,Shade,Text
 end
 
+function Feat:CreateTextbox(name,text,func)
+local name = tostring(name) or "InfiniX"
+local text = text or "TextBox"
+local func = func or function() end
+
+local Inner,Shade,Text = Button(name,func)
+Text:Destroy()
+
+local Padding = Instance.new("Frame")
+Padding.Visible = false
+Padding.Name = "TextBoxPadding"
+Padding.BorderSizePixel = 0
+Padding.Active = true
+Padding.BackgroundColor3 = Color3.fromRGB(75,75,75)
+Padding.Position = UDim2.new(0,0,0,0)
+Padding.Size = UDim2.new(1,0,1,0)
+Padding.Transparency = 0
+Padding.BackgroundTransparency = 0
+Padding.BorderSizePixel = 0
+Padding.ZIndex = 4
+Padding.SizeConstraint = "RelativeXY"
+Padding.Parent = Inner
+Lib:UICorner(Padding,4)
+
+local Textbox = Instance.new("TextBox")
+Textbox.Visible = true
+Textbox.Name = "TextBox"
+Textbox.Active = true
+Textbox.BackgroundColor3 = Color3.fromRGB(39,39,39)
+Textbox.TextColor3 = Color3.fromRGB(255,255,255)
+Textbox.BorderColor3 = Color3.fromRGB(255,255,255)
+Textbox.Position = UDim2.new(0.0175,0,0.53,0)
+Textbox.AnchorPoint = Vector2.new(0,0.5)
+Textbox.Size = UDim2.new(0.965,0,0.75,0)
+Textbox.Transparency = 0
+Textbox.BackgroundTransparency = 0
+Textbox.BorderSizePixel = 10
+Textbox.RichText = true
+Textbox.Font = "Nunito"
+Textbox.TextSize = 10
+Textbox.Text = text
+Textbox.PlaceholderText = name
+Textbox.ZIndex = 5
+Textbox.TextXAlignment = "Left"
+Textbox.SizeConstraint = "RelativeXY"
+Textbox.Parent = Inner
+Lib:UICorner(Textbox,1)
+
+local Shade = Instance.new("Frame")
+Shade.Visible = true
+Shade.Name = "Shade"
+Shade.Active = true
+Shade.BackgroundColor3 = Color3.fromRGB(0,0,0)
+Shade.BorderColor3 = Color3.fromRGB(255,255,255)
+Shade.Position = UDim2.new(0.01475,0,0.5,0)
+Shade.AnchorPoint = Vector2.new(0,0.5)
+Shade.Size = UDim2.new(0.9675,0,0.8,0)
+Shade.Transparency = 0
+Shade.BackgroundTransparency = 0
+Shade.BorderSizePixel = 10
+Shade.ZIndex = 4
+Shade.SizeConstraint = "RelativeXY"
+Shade.Parent = Inner
+Lib:UICorner(Shade,1)
+
+return Textbox,name,Inner,Shade
+end
+
 return Feat,name,Tab,Text,Inside
 end
 
@@ -1107,26 +1278,72 @@ return Tab_,name,Window
 end
 
 --[[
-local Win = Lib:CreateWindow("ah",nil,1)
+--Create Window
+--Lib:CreateWindow(name,DefTab,WinSize,function)
+local Win = Lib:CreateWindow("ah",1,nil,nil)
+
 for i = 1, 16 do
+
+--Create Tab
 local Tab,name = Win:CreateTab("Tab "..tostring(i),function() warn(i) end)
+
+Tab:CreateButton("Infinite yield",function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",true))()
+	end)
+
+Tab:CreateButton("Console",function()
+	game:GetService("StarterGui"):SetCore("DevConsoleVisible",true)
+	end)
+
 for i = 1, i do
+
+
+--Returns UI
+--Tab:CreateButton(name,function)
+	
 Tab:CreateButton("Button "..i,function()
 	print(i,name)
 	end)
+
+
+--Returns bool,UI
+--Tab:CreateToggle(name,default,function)
+	
 Tab:CreateToggle("Toggle "..i,false,function(t)
 	print(i,name,t)
 	end)
+
+
+--Returns value,UI
+--Tab:CreateSlider(name,min,max,default,function)
+
 local max = math.random(500,5000)
 Tab:CreateSlider("Slider "..i,50,max,max/math.random(2,6),function(v)
 	print(i,name,v)
 	end)
+
+
+--Returns two userdata,UI
+--Tab:CreateDropdown(name,{table,string},visible,function)
+
 Tab:CreateDropdown("Dropdown "..i, {{
 	"Named", {}},"hello","he","ah","eh","yw"
 },false,function(c,f)
 	print(i,name,c,f)
 	end)
+
+
+--Returns TextBox for FocusLost or Stretchability
+local Textbox = Tab:CreateTextbox("TextBox "..i,"FFlag")
+
+Textbox:GetPropertyChangedSignal("Text"):Connect(function()
+	local self = Textbox
+	print(self.Text)
+	end)
+
+
 end
-end]]
+end
+]]
 
 return Lib
