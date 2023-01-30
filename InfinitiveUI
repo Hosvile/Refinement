@@ -1,8 +1,6 @@
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 
---loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",true))()
-
 local ranstart = os.clock()
 local Lib = {}
 
@@ -12,7 +10,6 @@ end
 
 if getgenv and getgenv().DC_ then
 for i, v in pairs(DC_) do
---print(i,v,"Disconnected()",#DC_)
 v:Disconnect()
 DC_[i] = nil
 end
@@ -22,12 +19,16 @@ getgenv().DC_ = {}
 
 local CProvider = game:GetService("ContentProvider")
 
+local creations = 0
+
 --Window
 local BarIn = "rbxassetid://12002282362"
 --Bar
 local SearchIn = "rbxassetid://12112852615"
 local MenuIn = "rbxassetid://11949054349"
 local OutIn = "rbxassetid://11949055629"
+--Minimized
+local IconIn = "rbxassetid://12213561084"
 --Scroll
 local MoreIn = "rbxassetid://11949185875"
 --Features
@@ -37,7 +38,7 @@ local PointerIn = "rbxassetid://12080467938"
 local DropIn = "rbxassetid://12080300828"
 
 CProvider:PreloadAsync({
-	BarIn,SearchIn,MenuIn,OutIn,MoreIn,TogOn,TogOff,DropIn
+	BarIn,SearchIn,MenuIn,OutIn,IconIn,MoreIn,TogOn,TogOff,DropIn
 })
 
 function Lib:Randomized()
@@ -108,10 +109,45 @@ else
 	ScreenGui.Parent = CoreGui
 end
 
+local iconsize = 0.15
+local Icon = Instance.new("ImageButton")
+Icon.Visible = false
+Icon.Name = "Icon"
+Icon.BorderSizePixel = 0
+Icon.Image = IconIn
+Icon.ImageTransparency = 0
+Icon.Active = true
+Icon.BackgroundColor3 = Color3.fromRGB(255,255,255)
+Icon.Position = UDim2.new(0.105, 0, 0.05, 0)
+Icon.AnchorPoint = Vector2.new(0.5,0.5)
+Icon.Size = UDim2.new(iconsize, 0, iconsize, 0)
+Icon.Transparency = 0
+Icon.BackgroundTransparency = 1
+Icon.BorderSizePixel = 0
+Icon.ZIndex = 10
+Icon.SizeConstraint = "RelativeYY"
+Icon.Parent = ScreenGui
+
+local winsize = winsize or 0.49994444444444
+local windowsize = UDim2.new(0.41005555555556+winsize, 0, winsize,0)
+local windowpos = nil
+local Window = Instance.new("Frame")
+
+DC_[#DC_+1] = Icon.MouseButton1Click:Connect(function()
+local Timer = 0.05
+local Info = TweenInfo.new(Timer)
+local Goal = {}
+Goal.Size = windowsize
+Goal.Position = windowpos
+Tween = TweenService:Create(Window,Info,Goal)
+Icon.Visible = false
+Tween:Play()
+Window.Visible = true
+task.wait(Timer)
+end)
+
 --Original Size
 --Window.Size = UDim2.new(0.38976422764228, 0, 0.49994444444444,0)
-local winsize = winsize or 0.49994444444444
-local Window = Instance.new("Frame")
 Window.Name = "Window"
 Window.BackgroundColor3 = Color3.fromRGB(39,39,39)
 Window.Position = UDim2.new(0.5,0,0.5, 0)
@@ -119,11 +155,11 @@ Window.AnchorPoint = Vector2.new(0.5,0.5)
 Window.Size = UDim2.new(0.41005555555556+winsize, 0, winsize,0)
 Window.Transparency = 0.5
 Window.BorderSizePixel = 0
+Window.Draggable = true
 Window.ClipsDescendants = false
 Window.SizeConstraint = "RelativeYY"
---[[
-Window.Size = UDim2.new(0.38976422764228, 0, 0.215,0)
-Window.SizeConstraint = "RelativeXX"]]
+--Window.Size = UDim2.new(0.38976422764228, 0, 0.215,0)
+--Window.SizeConstraint = "RelativeXX"
 Window.Parent = ScreenGui
 Lib:UICorner(Window,10)
 
@@ -131,6 +167,7 @@ local Bar = Instance.new("ImageButton")
 Bar.Active = true
 Bar.Name = "Bar"
 Bar.Image = BarIn
+Bar.ImageColor3 = Color3.fromRGB(20,20,20)
 Bar.BackgroundColor3 = Color3.fromRGB(0,0,0)
 Bar.Position = UDim2.new(-0,0,-0,0)
 Bar.Size = UDim2.new(1, 0, 0.0825, 0)
@@ -139,7 +176,7 @@ Bar.BorderSizePixel = 0
 Bar.AutoButtonColor = false
 Bar.BackgroundTransparency = 1
 Bar.Parent = Window
-Lib:UICorner(Bar,4)
+Lib:UICorner(Bar,5)
 
 local Padding = Instance.new("Frame")
 Padding.Visible = SearchUp or false
@@ -174,7 +211,7 @@ Textbox.BorderSizePixel = 0
 Textbox.RichText = true
 Textbox.Font = "Nunito"
 Textbox.TextSize = 10
-Textbox.Text = "Text"
+Textbox.Text = ""
 Textbox.PlaceholderText = "Search"
 Textbox.ZIndex = 4
 Textbox.TextXAlignment = "Left"
@@ -183,20 +220,46 @@ Textbox.Parent = Bar
 Lib:UICorner(Textbox,4)
 
 local Base = {}
+local Canvas = {}
 function MatchSearch()
---Textbox.Text = " "..Textbox.Text
 local matched = false
 for i, t in pairs(Base) do
 local v = t[1]
 local Tab = t[2]
 local Container = v.Parent.Parent
+local Scroll = v.Parent
+local Insert = {Scroll.CanvasPosition,Scroll}
+local Found = false
+local Position
+local Index
+for i, v in pairs(Canvas) do
+if v[2] == Scroll then
+Index = i
+Found = true
+Position = v[1]
+end
+end
 if string.lower(v.Name):match(Textbox.Text:lower()) and not v.ClassName:match("UI") then
 matched = true
 v.Visible = true
-elseif Textbox.Text == "" and not v.ClassName:match("UI") then
+if not Found then
+table.insert(Canvas,Insert)
+Scroll.CanvasPosition = Vector2.new(0,0)
+elseif Found and Position and Index then
+if string.len(Textbox.Text) <= 0 then
+Scroll.CanvasPosition = Position
+table.remove(Canvas,Index)
+if Canvas[Index] then Canvas[Index] = nil end
+end
+end
+elseif Textbox.Text == "" or Textbox.Text == " " and not v.ClassName:match("UI") then
 matched = false
 Tab.Visible = true
 v.Visible = true
+if Found and Position then
+Scroll.CanvasPosition = Position
+table.remove(Canvas,Index)
+end
 elseif not v.ClassName:match("UI") then
 v.Visible = false
 end
@@ -279,83 +342,63 @@ Close.ZIndex = 4
 Close.SizeConstraint = "RelativeXY"
 Close.Parent = Bar
 
+DC_[#DC_+1] = Close.MouseButton1Click:Connect(function()
+local Timer = 0.05
+local Info = TweenInfo.new(Timer)
+local Goal = {}
+local guiInset = game:GetService("GuiService"):GetGuiInset()
+local ISX,ISY = Icon.AbsoluteSize.X, Icon.AbsoluteSize.Y
+local DSX,DSY = ISX*0.575,ISY*0.575
+local GSX,GSY = ISX+guiInset.X,ISY+guiInset.Y
+Goal.Size = UDim2.new(0,ISX*0.75,0,ISY*0.75)
+Goal.Position = UDim2.new(0,Icon.AbsolutePosition.X+DSX,0,Icon.AbsolutePosition.Y+DSY)
+Tween = TweenService:Create(Window,Info,Goal)
+windowpos = Window.Position
+Tween:Play()
+task.wait(Timer)
+Icon.Visible = true
+Window.Visible = false
+end)
+
 local UserInputService = game:GetService("UserInputService")
-local runService = (game:GetService("RunService"));
 
-local toDrag = Bar
-local gui = Window
+        local gui = Window
 
-local dislocated = false
-local dragging
-local dragInput
-local dragStart
-local startPos
+        local dragging
+        local dragInput
+        local dragStart
+        local startPos
 
-function Lerp(a, b, m)
-return a + (b - a) * m
-end;
+        local function update(input)
+        	local delta = input.Position - dragStart
+        	gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
 
-local lastMousePos
-local lastGoalPos
-local DRAG_SPEED = (getgenv().DragSpeed or 15); -- // The speed of the UI drag.
+        Bar.InputBegan:Connect(function(input)
+        	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        		dragging = true
+        		dragStart = input.Position
+        		startPos = gui.Position
+        		
+        		input.Changed:Connect(function()
+        			if input.UserInputState == Enum.UserInputState.End then
+        				dragging = false
+        			end
+        		end)
+        	end
+        end)
 
-if DRAG_SPEED and DRAG_SPEED > 75 then
-DRAG_SPEED = 75
-end
+        Bar.InputChanged:Connect(function(input)
+        	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        		dragInput = input
+        	end
+        end)
 
-function Update(dt)
-local dt = dt
-if dt >= 0.10 or (dt*DRAG_SPEED) >= 10 then
-dt = 0.025
-end
-local lastposition
-if not (startPos) then return end;
-if not (dragging) and (lastGoalPos) then
-lastposition = gui.Position
-gui.Position = UDim2.new(startPos.X.Scale, Lerp(gui.Position.X.Offset, lastGoalPos.X.Offset, dt * DRAG_SPEED), startPos.Y.Scale, Lerp(gui.Position.Y.Offset, lastGoalPos.Y.Offset, dt * DRAG_SPEED))
-return
-end;
-
-local delta = (lastMousePos - UserInputService:GetMouseLocation())
-local xGoal = (startPos.X.Offset - delta.X);
-local yGoal = (startPos.Y.Offset - delta.Y);
-lastGoalPos = UDim2.new(startPos.X.Scale, xGoal, startPos.Y.Scale, yGoal)
-lastposition = gui.Position
-gui.Position = UDim2.new(startPos.X.Scale, Lerp(gui.Position.X.Offset, xGoal, dt * DRAG_SPEED), startPos.Y.Scale, Lerp(gui.Position.Y.Offset, yGoal, dt * DRAG_SPEED))
-local XS, YS = Lib:InScreen(Bar)
-if not XS then
-gui.Position = lastposition
-elseif not YS then
-gui.Position = lastposition
-end
-end;
-
-local GoDrag = false
-DC_[#DC_+1] = Bar.MouseButton1Down:Connect(function() GoDrag = true end)
-DC_[#DC_+1] = Bar.MouseButton1Up:Connect(function() GoDrag = false end)
-DC_[#DC_+1] = toDrag.InputBegan:Connect(function(input)
-	if GoDrag and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-	dragging = true
-	dragStart = input.Position
-	startPos = gui.Position
-	lastMousePos = UserInputService:GetMouseLocation()
-
-	DC_[#DC_+1] = input.Changed:Connect(function()
-		if input.UserInputState == Enum.UserInputState.End or dislocated then
-		dragging = false
-		GoDrag = false
-		end
-		end)
-	end
-	end)
-
-DC_[#DC_+1] = toDrag.InputChanged:Connect(function(input)
-	if GoDrag and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-	dragInput = input
-	end
-	end)
-
-DC_[#DC_+1] = runService.Heartbeat:Connect(Update)
+        UserInputService.InputChanged:Connect(function(input)
+        	if input == dragInput and dragging then
+        		update(input)
+        	end
+        end)
 
 local Scroll = Instance.new("Frame")
 Scroll.Name = "ScrollTab"
@@ -1194,13 +1237,16 @@ Textbox.BackgroundTransparency = 0
 Textbox.BorderSizePixel = 10
 Textbox.RichText = true
 Textbox.Font = "Nunito"
-Textbox.TextSize = 10
 Textbox.Text = text
 Textbox.PlaceholderText = name
 Textbox.ZIndex = 5
 Textbox.TextXAlignment = "Left"
 Textbox.SizeConstraint = "RelativeXY"
 Textbox.Parent = Inner
+Textbox.TextSize = Textbox.AbsoluteSize.Y * 0.6
+Textbox:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	Textbox.TextSize = Textbox.AbsoluteSize.Y * 0.6
+	end)
 Lib:UICorner(Textbox,1)
 
 local Shade = Instance.new("Frame")
@@ -1347,3 +1393,34 @@ end
 ]]
 
 return Lib
+
+
+--[[
+local Win = Lib:CreateWindow("ah",1,nil)
+for i = 1, 16 do
+local Tab,name = Win:CreateTab("Tab "..tostring(i),function() warn(i) end)
+Tab:CreateButton("Infinite yield",function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",true))()
+	end)
+Tab:CreateButton("Console",function()
+	game:GetService("StarterGui"):SetCore("DevConsoleVisible",true)
+	end)
+for i = 1, i do
+Tab:CreateButton("Button "..i,function()
+	print(i,name)
+	end)
+Tab:CreateToggle("Toggle "..i,false,function(t)
+	print(i,name,t)
+	end)
+local max = math.random(500,5000)
+Tab:CreateSlider("Slider "..i,50,max,max/math.random(2,6),function(v)
+	print(i,name,v)
+	end)
+Tab:CreateDropdown("Dropdown "..i, {{
+	"Named", {}},"hello","he","ah","eh","yw"
+},false,function(c,f)
+	print(i,name,c,f)
+	end)
+local Textbox = Tab:CreateTextbox("TextBox "..i,"FFlag")
+end
+end]]
