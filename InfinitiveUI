@@ -38,7 +38,11 @@ end
 end
 
 function Utility.dragify(import,object, dragoutline, stroke)
-local start, objectposition, dragging, currentpos
+local start, objectposition, dragging, currentpos, hasdragged
+
+UserInputService.InputBegan:Connect(function(input)
+if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not hasdragged and dragoutline then dragoutline.Visible = false; hasdragged = true end   
+end)
 
 import.InputBegan:Connect(function(input)
 	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
@@ -1424,4 +1428,4 @@ DC_[#DC_+1] = Categories:GetPropertyChangedSignal("CanvasPosition"):Connect(Chec
 return Tab_,name,Window
 end
 
-return Lib,Utility
+return Lib, Utility
