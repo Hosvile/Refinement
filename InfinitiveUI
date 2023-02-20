@@ -70,7 +70,10 @@ import.InputBegan:Connect(function(input)
 
 Utility.connect(services.InputService.InputChanged, function(input)
 	if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-	local input = dragtouch
+	local input = input
+	if multi then
+	input = dragtouch
+	end
 	currentpos = UDim2.new(objectposition.X.Scale, objectposition.X.Offset + (input.Position - start).X, objectposition.Y.Scale, objectposition.Y.Offset + (input.Position - start).Y)
 	if dragoutline then
 	dragoutline.Position = currentpos
@@ -514,7 +517,7 @@ end
 
 DC_[#DC_+1] = Close.MouseButton1Click:Connect(CloseRS)
 
-Utility.dragify(Bar,Window,WindowBox,BoxStroke,nil,true)
+Utility.dragify(Bar,Window,WindowBox,BoxStroke,true)
 --[[
 local UserInputService = game:GetService("UserInputService")
 
