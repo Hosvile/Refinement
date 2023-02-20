@@ -29,24 +29,37 @@ return connection
 end
 
 function Utility.disconnect(connection)
-local index = table.find(library.connections, connection)
+local index = table.find(Lib.connections, connection)
 connection:Disconnect()
 
 if index then
-table.remove(library.connections, index)
+table.remove(Lib.connections, index)
 end
 end
 
-function Utility.dragify(import,object, dragoutline, stroke)
-local start, objectposition, dragging, currentpos, hasdragged
+local touchpoints = {}
+local conducting = 0
+
+local hasdragged = false
+function Utility.dragify(import,object, dragoutline, stroke, multi)
+local start, objectposition, dragging, currentpos
 
 UserInputService.InputBegan:Connect(function(input)
-if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not hasdragged and dragoutline then dragoutline.Visible = false; hasdragged = true end   
-end)
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+	conducting = conducting + 1
+	touchpoints[conducting] = input
+	end
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not hasdragged and dragoutline and dragoutline.Visible == true then
+	dragoutline.Visible = false; hasdragged = true
+	end
+	end)
+
+local dragtouch
 
 import.InputBegan:Connect(function(input)
 	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
 	dragging = true
+	dragtouch = input
 	start = input.Position
 	if dragoutline then
 	dragoutline.Visible = true
@@ -57,6 +70,7 @@ import.InputBegan:Connect(function(input)
 
 Utility.connect(services.InputService.InputChanged, function(input)
 	if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+	local input = dragtouch
 	currentpos = UDim2.new(objectposition.X.Scale, objectposition.X.Offset + (input.Position - start).X, objectposition.Y.Scale, objectposition.Y.Offset + (input.Position - start).Y)
 	if dragoutline then
 	dragoutline.Position = currentpos
@@ -67,12 +81,22 @@ Utility.connect(services.InputService.InputChanged, function(input)
 Utility.connect(services.InputService.InputEnded, function(input)
 	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and dragging then
 	dragging = false
+	dragtouch = nil
 	if dragoutline then
 	dragoutline.Visible = false
 	end
 	object.Position = currentpos
 	end
 	end)
+
+local Signal
+Signal = UserInputService.InputEnded:Connect(function(input)
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+	touchpoints[conducting] = nil
+	conducting = conducting - 1
+	end
+	end)
+
 end
 
 function Utility.getcenter(sizeX, sizeY)
@@ -161,7 +185,12 @@ local pos = gui.AbsolutePosition + guiInset
 return pos.X + gui.AbsoluteSize.X <= game.Workspace.CurrentCamera.ViewportSize.X and pos.X >= 0, pos.Y + gui.AbsoluteSize.Y <= game.Workspace.CurrentCamera.ViewportSize.Y and pos.Y >= 0
 end
 
-function Lib:CreateWindow(name,tabnum,winsize,func)
+function Lib:Scale(gui,parent)
+local parent = parent or gui.Parent
+return (gui.AbsoluteSize.X/parent.AbsoluteSize.X), (gui.AbsoluteSize.Y/parent.AbsoluteSize.Y)
+end
+
+function Lib:CreateWindow(name,tabnum,winsize)
 local name = tostring(name) or "InfiniX"
 local func = func or function() end
 
@@ -209,18 +238,31 @@ local windowpos = nil
 local Window = Instance.new("Frame")
 local WindowBox = Instance.new("Frame")
 
-DC_[#DC_+1] = Icon.MouseButton1Click:Connect(function()
-	local Timer = 0.05
-	local Info = TweenInfo.new(Timer)
-	local Goal = {}
-	Goal.Size = windowsize
-	Goal.Position = windowpos
-	Tween = TweenService:Create(Window,Info,Goal)
-	Icon.Visible = false
-	Tween:Play()
-	Window.Visible = true
-	task.wait(Timer)
-	end)
+local ui_minimized = false
+
+local closefunc = function(...) return end
+local openfunc = func or closefunc
+
+function OpenRS(time)
+local Timer = time or 0.05
+local Info = TweenInfo.new(Timer)
+local Goal = {}
+Goal.Size = windowsize
+Goal.Position = windowpos
+Tween = TweenService:Create(Window,Info,Goal)
+Icon.Visible = false
+openfunc()
+Tween:Play()
+Window.Visible = true
+task.wait(Timer)
+if not hasdragged then
+WindowBox.Visible = true
+end
+ui_minimized = false
+return ui_minimized
+end
+
+DC_[#DC_+1] = Icon.MouseButton1Click:Connect(OpenRS)
 
 WindowBox.Active = false
 WindowBox.Name = "WindowBox"
@@ -268,6 +310,7 @@ Bar.Active = true
 Bar.Name = "Bar"
 Bar.Image = BarIn
 Bar.ImageColor3 = Color3.fromRGB(20,20,20)
+Bar.ScaleType = "Crop"
 Bar.BackgroundColor3 = Color3.fromRGB(0,0,0)
 Bar.Position = UDim2.new(-0,0,-0,0)
 Bar.Size = UDim2.new(1, 0, 0.0825, 0)
@@ -277,6 +320,9 @@ Bar.AutoButtonColor = false
 Bar.BackgroundTransparency = 1
 Bar.Parent = Window
 Lib:UICorner(Bar,5)
+
+print (Bar.Size)
+warn (Lib:Scale(Bar,Bar.Parent))
 
 local Padding = Instance.new("Frame")
 Padding.Visible = SearchUp or false
@@ -444,25 +490,31 @@ Close.ZIndex = 4
 Close.SizeConstraint = "RelativeXY"
 Close.Parent = Bar
 
-DC_[#DC_+1] = Close.MouseButton1Click:Connect(function()
-	local Timer = 0.05
-	local Info = TweenInfo.new(Timer)
-	local Goal = {}
-	local guiInset = game:GetService("GuiService"):GetGuiInset()
-	local ISX,ISY = Icon.AbsoluteSize.X, Icon.AbsoluteSize.Y
-	local DSX,DSY = ISX*0.575,ISY*0.575
-	local GSX,GSY = ISX+guiInset.X,ISY+guiInset.Y
-	Goal.Size = UDim2.new(0,ISX*0.75,0,ISY*0.75)
-	Goal.Position = UDim2.new(0,Icon.AbsolutePosition.X+DSX,0,Icon.AbsolutePosition.Y+DSY)
-	Tween = TweenService:Create(Window,Info,Goal)
-	windowpos = Window.Position
-	Tween:Play()
-	task.wait(Timer)
-	Icon.Visible = true
-	Window.Visible = false
-	end)
+function CloseRS(time)
+local Timer = time or 0.05
+local Info = TweenInfo.new(Timer)
+local Goal = {}
+local guiInset = game:GetService("GuiService"):GetGuiInset()
+local ISX,ISY = Icon.AbsoluteSize.X, Icon.AbsoluteSize.Y
+local DSX,DSY = ISX*0.575,ISY*0.575
+local GSX,GSY = ISX+guiInset.X,ISY+guiInset.Y
+Goal.Size = UDim2.new(0,ISX*0.75,0,ISY*0.75)
+Goal.Position = UDim2.new(0,Icon.AbsolutePosition.X+DSX,0,Icon.AbsolutePosition.Y+DSY)
+Tween = TweenService:Create(Window,Info,Goal)
+windowpos = Window.Position
+closefunc()
+WindowBox.Visible = false
+Tween:Play()
+task.wait(Timer)
+Icon.Visible = true
+Window.Visible = false
+ui_minimized = true
+return ui_minimized
+end
 
-Utility.dragify(Bar,Window,WindowBox,BoxStroke)
+DC_[#DC_+1] = Close.MouseButton1Click:Connect(CloseRS)
+
+Utility.dragify(Bar,Window,WindowBox,BoxStroke,nil,true)
 --[[
 local UserInputService = game:GetService("UserInputService")
 
@@ -528,6 +580,7 @@ Categories.ScrollingDirection = "Y"
 Categories.ScrollBarImageTransparency = 1
 Categories.Parent = Scroll
 Lib:UICorner(Scroll,7.5)
+
 local UIPad = Lib:UIPad(Categories)
 UIPad.PaddingTop = UDim.new(0,Categories.AbsoluteSize.Y*0.05)
 local UIList = Lib:UIList(Categories,0,Categories.AbsoluteSize.Y*0.05)
@@ -537,6 +590,28 @@ local Tab_ = {}
 local TabTable = {}
 local PreviousTab
 local ExistingTabs = {}
+
+function Tab_:Minimize(bool,time,yield)
+local time = time or 0.2
+local function Yield()
+repeat task.wait() until ui_minimized == bool
+end
+if bool then
+CloseRS(time)
+else
+	OpenRS(time)
+end;if yield then Yield() end
+end
+
+function Tab_:Closing(func)
+if type (func) == "function" then else return end
+closefunc = func
+end
+
+function Tab_:Opening(func)
+if type(func) == "function" then else return end
+openfunc = func
+end
 
 function Tab_:CreateTab(name,func)
 local name = tostring(name) or "InfiniX"
