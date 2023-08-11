@@ -1,0 +1,236 @@
+local properties; do
+local hash, data
+if not isfile("hashAPI") then
+hash = game:HttpGet("http://setup.roblox.com/versionQTStudio")
+writefile("hashAPI",hash)
+end
+if not isfile("dataAPI") then
+data = game:HttpGet(string.format("http://setup.roblox.com/%s-API-Dump.json", hash))
+writefile("dataAPI",data)
+end
+hash = readfile("hashAPI")
+data = readfile("dataAPI")
+local filter = game:GetService('HttpService'):JSONDecode(data);
+properties = filter.Classes;
+end
+
+local function find(tb, val)
+for i, v in next, tb do
+if v == val then
+return true
+end
+end
+return false
+end
+
+local function GetProperties(obj)
+local props = {};
+for _, t in next, properties do
+local class = t.Name
+for i, v in next, t.Members do
+if obj:IsA(class) then
+if v.MemberType == 'Property' then
+local failed = false;
+
+if v.Tags then
+if find(v.Tags, 'Deprecated') then failed = true end
+if find(v.Tags, 'Hidden') then failed = true end
+if find(v.Tags, 'NotScriptable') then failed = true end
+end
+
+local S, E = pcall(function()
+	if obj and obj[v.Name] then end
+	end)
+
+if class and obj:IsA(class) and (not failed) and S then
+table.insert(props, {
+	Name = v.Name;
+	Value = obj[v.Name];
+})
+end
+end
+end
+end
+end
+return props
+end
+
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+
+if setreadonly then
+setreadonly(mt, false)
+elseif make_writeable then
+make_writeable(mt)
+end
+
+local newcclosure = newcclosure or protect_function;
+local checkcaller = checkcaller or is_protosmasher_caller;
+
+mt.__namecall = newcclosure(function(self,...)
+	args = {
+		...
+	}
+	if checkcaller() then
+	local method = getnamecallmethod()
+	if method == 'GetProperties' then return GetProperties end
+	end
+	return old(self,...)
+	end)
+
+function Notify(Board,Name)
+NotificationBindable = Instance.new("BindableFunction")
+NotificationBindable.OnInvoke = function(Text)
+if Text == "Yes" then
+setclipboard(Board)
+elseif Text == "Exe" then
+game:GetService("StarterGui"):SetCore("DevConsoleVisible",true)
+loadstring("local S, E = pcall(function()\n"..Board.."\nend)\nif E then error(E) else print(S) end")()
+elseif Text == "Write" then
+if not isfile("Saved_Instances") then
+makefolder("Saved_Instances")
+end
+writefile("Saved_Instances/" .. Name .. "_Properties.txt",Board)
+end
+end
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "Fetched Instance",
+	Text = "¿Copy to clipboard?",
+	Duration = 17.5,
+	Button1 = "Yes",
+	Button2 = "No",
+	Callback = NotificationBindable
+})
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "Fetched Instance",
+	Text = "¿Writefile?",
+	Duration = 15,
+	Button1 = "Write",
+	Button2 = "No",
+	Callback = NotificationBindable
+})
+end
+
+local PropVal = {}
+
+function Format(v)
+local typeof_ = typeof(v.Value)
+local typeof, ignorenew = typeof_:lower(), {["nil"] = true,["number"] = true,["boolean"] = true,["table"] = true,["instance"] = true,["enumitem"] = true,
+}
+sf = string.format
+sm = string.match
+sg = string.gsub
+ts = tostring
+if typeof == "string" then
+v.Value = sg(ts(v.Value),"]]","\\]\\]",math.huge)
+v.Value = sf("[[%s]]",v.Value)
+elseif typeof == "brickcolor" then
+v.Value = sf("BrickColor.new('%s')",v.Value.Name)
+elseif typeof == "font" then
+v.Value = sf("Font.new('%s', %s, %s)",v.Value.Family,ts(v.Value.Weight),ts(v.Value.Style))
+elseif not ignorenew[typeof] then
+v.Value = sf("%s.new(%s)",typeof_,sg(tostring(v.Value),"[{}]",""))
+end
+if not PropVal[typeof] then
+PropVal[typeof] = typeof
+--warn(v.Name,typeof,v.Value)
+else
+	--print(v.Name,typeof,v.Value)
+end
+return v
+end
+
+function notDefault(v,prop)
+local instance
+local S0, E0 = pcall(function()
+	instance = game:GetService(v.ClassName).ClassName
+	end)
+local S1, E1 = pcall(function()
+	instance = Instance.new(v.ClassName)
+	if instance[prop.Name] and instance[prop.Name] ~= prop.Value then
+	instance:Destroy()
+	else
+		error("Is Default")
+	end
+	end)
+if S0 or S1 then return true elseif not S0 and not S1 and instance then instance:Destroy() end
+end
+
+function GetProp(i,v)
+local Board = ""
+for i1, v1 in next, GetProperties(v) do
+if notDefault(v,v1) == true then
+v1 = Format(v1)
+Board = string.format("%s\n%s.%s = %s",Board,v.Name:gsub("[^%w_]+", ""),v1.Name,tostring(v1.Value))
+end
+end
+return Board
+end
+
+function Save(Instance,Method)
+if setfflag then setfflag("AnimatorIsThrottledPropertyEnabled","true") end
+local Board, Parent = "", "game"
+if Instance ~= game then
+Parent = string.format("game.%s",Instance.Parent:GetFullName())
+end
+local S, E = pcall(function()
+	assert(game:GetService(Instance.ClassName) ~= nil, "")
+	end)
+if S and Instance ~= game then
+Board = string.format("local %s = game:GetService('%s')\n",Instance.Name:gsub("[^%w_]+", ""),Instance.ClassName)
+elseif Instance ~= game then
+Board = string.format("local %s = Instance.new('%s', %s)\n",Instance.Name:gsub("[^%w_]+", ""),Instance.ClassName,Parent)
+else
+	Board = string.format("local %s = game\n",Instance.Name:gsub("[^%w_]+", ""))
+end
+Board = Board .. GetProp(nil, Instance)
+Board = string.format("%s\n\n",Board)
+Parent = Instance.Name
+if Method then
+for i, v in pairs(Instance[Method](Instance)) do
+if v.Parent ~= game then
+Board = string.format("%slocal %s = Instance.new('%s', game.%s)",Board,v.Name:gsub("[^%w_]+", ""),v.ClassName,v.Parent:GetFullName())
+elseif S then
+Board = string.format("%slocal %s = game:GetService('%s')\n",Board,v.Name:gsub("[^%w_]+", ""),v.ClassName)
+else
+	Board = string.format("%slocal %s = Instance.new('%s', game)",Board,v.Name:gsub("[^%w_]+", ""),v.ClassName,v.Parent:GetFullName())
+end
+Board = Board .. GetProp(i,v)
+Board = string.format("%s\n\n",Board)
+Parent = v.Name
+end
+end
+Notify(Board,Instance:GetFullName())
+if setfflag then setfflag("AnimatorIsThrottledPropertyEnabled","false") end
+return Board
+end
+
+return Save
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
