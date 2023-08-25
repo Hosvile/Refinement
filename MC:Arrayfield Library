@@ -1140,7 +1140,7 @@ function Minimise()
 		spawn(CloseSideBar)
 	end
 	spawn(function()
-		FadeDescription(nil,true)
+		FadeDescription(nil,true,true)
 	end)
 	for _, tabbtn in ipairs(TopList:GetChildren()) do
 		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "Placeholder" then
