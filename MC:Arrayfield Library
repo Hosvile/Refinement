@@ -132,7 +132,7 @@ local ParentObject = function(Gui)
 	local success, failure = pcall(function()
 		if get_hidden_gui or gethui then
 			local hiddenUI = get_hidden_gui or gethui
-			Gui.Parent = CoreGui or hiddenUI()
+			Gui.Parent = hiddenUI()
 		elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
 			syn.protect_gui(Gui)
 			Gui.Parent = CoreGui
@@ -164,6 +164,7 @@ local NotePrompt = Main.NotePrompt
 local InfoPrompt = ArrayField.Info
 
 ArrayField.DisplayOrder = 100
+Elements.UIPageLayout.TouchInputEnabled = false
 LoadingFrame.Version.Text = Release
 
 
@@ -285,17 +286,19 @@ local function FadeDescription(Infos,type,Out)
 			InfoPrompt.Status.Text = Infos.Color.R..Infos.Color.G..Infos.Color.B
 		end
 
-		if not Infos.Info.Image then
+		if Infos and Infos["Info"] and not Infos.Info["Image"] then
 			InfoPrompt.ImageLabel.Visible = false
 			InfoPrompt.Description.Position = InfoPrompt.ImageLabel.Position
-		else
+		elseif Infos and Infos["Info"] and Infos.Info["Image"] then
 			InfoPrompt.ImageLabel.Visible = true
-			InfoPrompt.ImageLabel.Image = 'rbxassetid://'..Infos.Info.Image
+			InfoPrompt.ImageLabel.Image = 'rbxassetid://'..Infos.Info["Image"]
 			InfoPrompt.Description.Position = UDim2.new(.5,0,0,160)
 		end
 
-		InfoPrompt.Title.Text = Infos.Info.Title
-		InfoPrompt.Description.Text = Infos.Info.Description
+		if Infos and Infos["Info"] then
+			InfoPrompt.Title.Text = Infos.Info.Title
+			InfoPrompt.Description.Text = Infos.Info.Description
+		end
 	end
 	TweenService:Create(InfoPrompt,TweenInfo.new(.3,Enum.EasingStyle.Quint,Enum.EasingDirection.Out),{
 		Size = Size,BackgroundTransparency = Transparency
@@ -819,6 +822,8 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 	end)
 end
 
+ArrayFieldLibrary:Notify({Title = "Modified by Hosvile", Content = "Want more scripts that has been modified to support mobile? Check out my YouTube Channel Hosvile", Duration = 7})
+
 function CloseSideBar()
 	Debounce = true
 	SideBarClosed = true
@@ -841,7 +846,7 @@ function Hide()
 		spawn(CloseSideBar)
 	end
 	spawn(function()
-		FadeDescription(nil,true)
+		FadeDescription(nil,true,true)
 	end)
 	Debounce = true
 	ArrayFieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 7})
@@ -873,7 +878,6 @@ function Hide()
 			for _, element in ipairs(tab:GetChildren()) do
 				if element.ClassName == "Frame" then
 					if element.Name ~= "SectionSpacing" and element.Name ~= "Placeholder" then
-						print(element)
 						if element:FindFirstChild('Holder') then
 							TweenService:Create(element, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
 							TweenService:Create(element.Title, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
@@ -2040,7 +2044,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 			Input.InputFrame.InputBox.FocusLost:Connect(function(enter)
 				TweenService:Create(Input.InputFrame, TweenInfo.new(0.55, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 24, 0, 30)}):Play()
-				if InputSettings.OnEnter and not enter then if InputSettings.RemoveTextAfterFocusLost then Input.InputFrame.InputBox.Text = "" end return end
+				if InputSettings.OnEnter and not enter then if InputSettings.RemoveTextAfterFocusLost then Input.InputFrame.InputBox.Text = ""; Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 24, 0, 30) end return end
 				local Success, Response = pcall(function()
 					InputSettings.Callback(Input.InputFrame.InputBox.Text)
 				end)
@@ -2152,15 +2156,30 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 			Dropdown.Toggle.Rotation = 180
 
-			local function RefreshSelected()
-				if #DropdownSettings.Items.Selected > 1 then
+			local function GetOptionInstance(Name)
+				for i, v in pairs(Dropdown.List:GetChildren()) do
+					if typeof(Name) == "Instance" and v.Name == Name.Name or v.Name == Name or v == Name then
+						TweenService:Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+						return v
+					end
+				end
+			end
+
+			local function RefreshSelected(boolean)
+				if #DropdownSettings.Items.Selected > 0 then
 					local NT = {}
 					for _,kj in ipairs(DropdownSettings.Items.Selected) do
-						NT[#NT+1] = kj.Option.Name
+						if boolean and typeof(kj.Option) == "Instance" then
+							for _, v in pairs(Dropdown.List:GetChildren()) do
+								if v.ClassName == "Frame" and v.Name ~= 'PlaceHolder' and v.Name ~= "-SearchBar" then
+									TweenService:Create(v, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+								end
+							end
+							TweenService:Create(kj.Option, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+						end
+						NT[#NT+1] = kj.Name
 					end
 					Dropdown.Selected.Text = table.concat(NT, ", ")
-				elseif DropdownSettings.Items.Selected[1] then
-					Dropdown.Selected.Text = DropdownSettings.Items.Selected[1].Option.Name
 				else
 					Dropdown.Selected.Text = "Select an option"
 				end
@@ -2252,6 +2271,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 				end)
 				DropdownSettings.Items[Option] = {
 					Option = DropdownOption,
+					Name = Option.Name or Option,
 					Selected = false
 				}
 				local OptionInTable = DropdownSettings.Items[Option]
@@ -2260,10 +2280,10 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 				DropdownOption.Parent = Dropdown.List
 				DropdownOption.Visible = true
 				local IsSelected = OptionInTable.Selected
+				if typeof(Selecteds) == 'string' then
+					Selecteds = {Selecteds}
+				end
 				if Selecteds and #Selecteds > 0 then
-					if typeof(Selecteds) == 'string' then
-						Selecteds = {Selecteds}
-					end
 					for index,Selected in pairs(Selecteds) do
 						if Selected == Option then
 							IsSelected = true
@@ -2292,6 +2312,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 				DropdownOption.Interact.ZIndex = 50
 				DropdownOption.Interact.MouseButton1Click:Connect(function()
 					if DropdownSettings.Locked then return end
+					if DropdownOption.BackgroundColor3 == Color3.fromRGB(30, 30, 30) then OptionInTable.Selected = false else OptionInTable.Selected = true end
 					if OptionInTable.Selected then
 						OptionInTable.Selected = false
 						table.remove(DropdownSettings.Items.Selected,table.find(DropdownSettings.Items.Selected,OptionInTable))
@@ -2302,7 +2323,9 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 					end
 					if not Multi and DropdownSettings.Items.Selected[1] then
 						DropdownSettings.Items.Selected[1].Selected = false
-						TweenService:Create(DropdownSettings.Items.Selected[1].Option, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+						if typeof(DropdownSettings.Items.Selected[1]["Option"]) == "Instance" then
+							TweenService:Create(DropdownSettings.Items.Selected[1].Option, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+						end
 					end
 					if not (Multi) then
 						DropdownSettings.Items.Selected = {OptionInTable}
@@ -2324,7 +2347,9 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 					if not (Multi) then
 						for _,op in ipairs(DropdownSettings.Items.Selected) do
-							TweenService:Create(op.Option, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+							if typeof(op) == "Instance" then
+								TweenService:Create(op.Option, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+							end
 						end
 					end
 					TweenService:Create(DropdownOption.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
@@ -2346,7 +2371,6 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 						TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Rotation = 180}):Play()	
 						wait(0.35)
 						Dropdown.List.Visible = false
-
 					end
 					Debounce = false
 					SaveConfiguration()
@@ -2374,17 +2398,23 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 			--fix
 			function DropdownSettings:Set(NewOption)
-
+				local OldNewOption = NewOption
+				if NewOption then
+					DropdownSettings.Items.Selected = {}
+				end
+				if typeof(NewOption) == 'table' then
+				else
+					NewOption = {NewOption}
+				end
 				for _,o in pairs(NewOption) do
-
-					if typeof(NewOption) == 'table' then
-
-						DropdownSettings.Items.Selected = NewOption
-					else
-						DropdownSettings.Items.Selected = {NewOption}
-					end
+					local Items = {
+						Option = GetOptionInstance(o) or o,
+						Name = o.Name or o,
+						Selected = true
+					}
+					table.insert(DropdownSettings.Items.Selected,Items)
 					local Success, Response = pcall(function()
-						DropdownSettings.Callback(NewOption)
+						DropdownSettings.Callback(OldNewOption)
 					end)
 					if not Success then
 						TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
@@ -2412,6 +2442,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 					end
 				end
+				RefreshSelected(true)
 				--Dropdown.Selected.Text = NewText
 			end
 			function DropdownSettings:Error(text)
@@ -2891,26 +2922,31 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 				end
 			end)
 
-			game:GetService("UserInputService").InputEnded:Connect(function(input, gameProcessed) if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+			game:GetService("UserInputService").InputEnded:Connect(function(input, gameProcessed) if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+					TabPage.ScrollingEnabled = true
 					mainDragging = false
 					sliderDragging = false
 				end end)
 			Main.MouseButton1Down:Connect(function()
 				if opened and not ColorPickerSettings.Locked then
+					TabPage.ScrollingEnabled = false
 					mainDragging = true 
 				end
 			end)
 			Main.MainPoint.MouseButton1Down:Connect(function()
 				if opened and not ColorPickerSettings.Locked then
+					TabPage.ScrollingEnabled = false
 					mainDragging = true 
 				end
 			end)
 			Slider.MouseButton1Down:Connect(function()
 				if ColorPickerSettings.Locked then return end
+				TabPage.ScrollingEnabled = false
 				sliderDragging = true 
 			end)
 			Slider.SliderPoint.MouseButton1Down:Connect(function()
 				if ColorPickerSettings.Locked then return end
+				TabPage.ScrollingEnabled = false
 				sliderDragging = true 
 			end)
 
@@ -3515,142 +3551,266 @@ function ArrayFieldLibrary:LoadConfiguration()
 end
 task.delay(9, ArrayFieldLibrary.LoadConfiguration, ArrayFieldLibrary)
 
---[[
 local ArrayField = ArrayFieldLibrary
 
+--[[
 local Window = ArrayField:CreateWindow({
-   Name = "ArrayField Example Window",
-   LoadingTitle = "ArrayField Interface Suite",
-   LoadingSubtitle = "by Arrays",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "ArrayField"
-   },
-   Discord = {
-      Enabled = false,
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Untitled",
-      Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided",
-      FileName = "Key", -- It is recommended to use something unique as other scripts using ArrayField may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like ArrayField to get the key from
-      Actions = {
-            [1] = {
-                Text = 'Click here to copy the key link <--',
-                OnPress = function()
-                    print('Pressed')
-                end,
+        Name = "ArrayField Example Window",
+        LoadingTitle = "ArrayField Interface Suite",
+        LoadingSubtitle = "by Arrays",
+        ConfigurationSaving = {
+            Enabled = true,
+            FolderName = nil, -- Create a custom folder for your hub/game
+            FileName = "ArrayField"
+        },
+        Discord = {
+            Enabled = false,
+            Invite = "sirius", -- The Discord invite code, do not include discord.gg/
+            RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+        },
+        KeySystem = true, -- Set this to true to use our key system
+        KeySettings = {
+            Title = "ArrayField",
+            Subtitle = "Key System",
+            Note = "Join the discord (discord.gg/sirius)",
+            FileName = "ArrayFieldsKeys",
+            SaveKey = false,
+            GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like ArrayField to get the key from
+            Key = {"Hello",'Bye'},
+            Actions = {
+                [1] = {
+                    Text = 'Click here to copy the key link',
+                    OnPress = function()
+
+                    end,
                 }
             },
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
-})
-
-Window:Prompt({
-    Title = 'Interface Prompt',
-    SubTitle = 'SubTitle',
-    Content = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    Actions = {
-        Accept = {
-            Name = 'Accept',
-            Callback = function()
-                print('Pressed')
-            end,
         }
-    }
-})
+    })
+    local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
+    local Tab2 = Window:CreateTab("Tab Example 2") -- Title, Image
+    local Section = Tab:CreateSection("Section Example",false) -- The 2nd argument is to tell if its only a Title and doesnt contain element
+    Tab2:CreateSpacing(nil,10)
+    local Button = Tab2:CreateButton({
+        Name = "Button Example",
+        Info = {
+            Title = 'This is a Button',
+            Description = 'This is a description for the button you know.',
+        },
+        Interact = 'Changable',
+        Callback = function()
+            print('Pressed')
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local Toggle = Tab:CreateToggle({
+        Name = "Toggle Example",
+        Info = {
+            Title = 'Slider template',
+            Image = '12735851647',
+            Description = 'Just a slider for stuff',
+        },
+        CurrentValue = false,
+        Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+        Callback = function(Value)
+            print(Value)
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local Button = Tab:CreateButton({
+        Name = "Button Example",
+        Info = {
+            Title = 'This is a Button',
+            Description = 'This is a description for the button you know.',
+        },
+        Interact = 'Changable',
+        Callback = function()
+            print('Pressed')
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local Toggle = Tab:CreateToggle({
+        Name = "Toggle Example",
+        Info = {
+            Title = 'Slider template',
+            Image = '12735851647',
+            Description = 'Just a slider for stuff',
+        },
+        CurrentValue = false,
+        Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+        Callback = function(Value)
+            print(Value)
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local ColorPicker = Tab:CreateColorPicker({
+        Name = "Color Picker",
+        Color = Color3.fromRGB(2,255,255),
+        Flag = "ColorPicker1",
+        Callback = function(Value)
+            print(Value)
+        end
+    })
+    Tab:CreateSpacing(nil,10)
+    local Slider = Tab:CreateSlider({
+        Name = "Slider Example",
+        Range = {0, 100},
+        Increment = 10,
+        Suffix = "Bananas",
+        CurrentValue = 10,
+        Flag = "Slider1",
+        Callback = function(Value)
+            print(Value)
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local Keybind = Tab:CreateKeybind({
+        Name = "Keybind Example",
+        CurrentKeybind = "Q",
+        HoldToInteract = false,
+        Flag = "Keybind1",
+        Callback = function(Keybind)
 
-local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
+        end,
+    })
+    Tab:CreateSpacing(nil,10)
+    local Section2 = Tab:CreateSection("Inputs Examples",true)
+    Tab:CreateInput({
+        Name = "Numbers Only",
+        PlaceholderText = "Amount",
+        NumbersOnly = true,
+        OnEnter = true,
+        RemoveTextAfterFocusLost = true,
+        Callback = function(Text)
+            print(Text)
+        end,
+    })
+    Tab:CreateInput({
+        Name = "11 Characters Limit",
+        PlaceholderText = "Text",
+        CharacterLimit = 11,
+        RemoveTextAfterFocusLost = true,
+        Callback = function(Text)
+            print(Text)
+        end,
+    })
+    Tab:CreateInput({
+        Name = "No RemoveTextAfterFocusLost",
+        PlaceholderText = "Input",
+        RemoveTextAfterFocusLost = false,
+        Callback = function(Text)
+            print(Text)
+        end,
+    })
+    local Section3= Tab:CreateSection("Dropdown Examples",true)
+    local MultiSelectionDropdown = Tab:CreateDropdown({
+        Name = "Multi Selection",
+        Options = {"Option 1","Option 2",'Option 3'},
+        CurrentOption = {"Option 1","Option 3"} ,
+        MultiSelection = true,
+        Flag = "Dropdown1",
+        Callback = function(Option)
+            print(Option)
+        end,
+    })
+    local SingleSelection = Tab:CreateDropdown({
+        Name = "Single Selection",
+        Options = {"Option 1","Option 2"},
+        CurrentOption = "Option 1",
+        MultiSelection = false,
+        Flag = "Dropdown2",
+        Callback = function(Option)
+            print(Option)
+        end,
+    })
+    local Label = Tab:CreateLabel("Thanks for using Arrayfield, there were alot of issues but here we are!",Section)
+    local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph Example"},Section)
+    local Sets = Tab:CreateSection('Set Functions',false)
+    local SButton
+    SButton = Tab:CreateButton({
+        Name = "Button Example",
+        Interact = 'Interact',
+        SectionParent = Sets,
+        Callback = function()
+            SButton:Set(nil,'New Interaction')
+        end
+    })
+    Tab:CreateButton({
+        Name = "Dropdown Set",
+        Interact = 'Interact',
+        SectionParent = Sets,
+        Callback = function()
+            SingleSelection:Set('Option 1')
+        end
+    })
 
-local Section = Tab:CreateSection("Section Example",false) -- The 2nd argument is to tell if its only a Title and doesnt contain element
+    local LockTesting = Tab:CreateSection('Lockdown Section',false)
+    local ToLock = {}
+    Tab:CreateToggle({
+        Name = "Lockdown",
+        SectionParent = LockTesting,
+        CurrentValue = false,
+        Callback = function(Value)
+            if Value then
+                for _,v in ToLock do
+                    v:Lock('Locked')
+                end
+            else
+                for _,v in ToLock do
+                    v:Unlock('Locked')
+                end
+            end
+        end,
+    })
+    Tab:CreateSpacing(LockTesting)
+    ToLock.Button = Tab:CreateButton({
+        SectionParent = LockTesting,
+        Name = "Button Example",
+        Interact = 'Interact',
+        Callback = function()
+            print('Pressed')
+        end,
+    })
+    ToLock.Toggle = Tab:CreateToggle({
+        SectionParent = LockTesting,
+        Name = "Toggle Example",
+        CurrentValue = false,
+        Flag = "Toggle2", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+        Callback = function(Value)
+            print(Value)
+        end,
+    })
+    ToLock.ColorPicker = Tab:CreateColorPicker({
+        Name = "Color Picker",
+        SectionParent = LockTesting,
+        Color = Color3.fromRGB(2,255,255),
+        Flag = "ColorPicker2",
+        Callback = function(Value)
+            print(Value)
+        end
+    })
+    ToLock.Slider = Tab:CreateSlider({
+        SectionParent = LockTesting,
+        Name = "Slider Example",
+        Range = {0, 100},
+        Increment = 10,
+        Suffix = "Bananas",
+        CurrentValue = 10,
+        Flag = "Slider2",
+        Callback = function(Value)
+            print(Value)
+        end,
+    })
+    ToLock.Keybind = Tab:CreateKeybind({
+        Name = "Keybind Example",
+        CurrentKeybind = "Q",
+        HoldToInteract = false,
+        SectionParent = LockTesting,
+        Flag = "Keybind2",
+        Callback = function(Keybind)
 
-Section:Set("Section Example")
-
-local Button = Tab:CreateButton({
-   Name = "Button Example",
-   Interact = 'Click',
-   Callback = function()
-   	print("Button")
-   -- The function that takes place when the button is pressed
-   end,
-})
-
-Button:Set("Button Example","Interact")
-
-local Toggle = Tab:CreateToggle({
-   Name = "Toggle Example",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   	print("Toggle: ",Value)
-   -- The function that takes place when the toggle is pressed
-   -- The variable (Value) is a boolean on whether the toggle is true or false
-   end,
-})
-
-Toggle:Set(false)
-
-local ColorPicker = Tab:CreateColorPicker({
-    Name = "Color Picker",
-    Color = Color3.fromRGB(255,255,255),
-    Flag = "ColorPicker1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-    	print("Color Picker: ",Value)
-        -- The function that takes place every time the color picker is moved/changed
-        -- The variable (Value) is a Color3fromRGB value based on which color is selected
-    end
-})
-
-ColorPicker:Set(Color3.fromRGB(255,255,255))
-
-local Slider = Tab:CreateSlider({
-   Name = "Slider Example",
-   Range = {0, 100},
-   Increment = 10,
-   Suffix = "Bananas",
-   CurrentValue = 10,
-   Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-   	print("Slider: ",Value)
-   -- The function that takes place when the slider changes
-   -- The variable (Value) is a number which correlates to the value the slider is currently at
-   end,
-})
-
-Slider:Set(10) -- The new slider integer value
-
-local Input = Tab:CreateInput({
-   Name = "Input Example",
-   PlaceholderText = "Input Placeholder",
-   NumbersOnly = nil, -- If the user can only type numbers. Remove or set to false if none.
-   CharacterLimit = nil, --max character limit. Remove or set to false
-   OnEnter = nil, -- Will callback only if the user pressed ENTER while being focused on the the box.
-   RemoveTextAfterFocusLost = nil, -- Speaks for itself.
-   Callback = function(Text)
-   	print("Input: ",Text)
-   -- The function that takes place when the input is changed
-   -- The variable (Text) is a string for the value in the text box
-   end,
-})
-
-local Dropdown = Tab:CreateDropdown({
-   Name = "Dropdown Example",
-   Options = {"Option 1","Option 2"},
-   CurrentOption = "Option 1" or {"Option 1","Option 3"},
-   MultiSelection = true, -- If MultiSelections is allowed
-   Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Option)
-   	print("Dropdown: ",Option)
-   -- The function that takes place when the selected option is changed
-   -- The variable (Option) is a string for the value that the dropdown was changed to
-   end,
-})
+        end,
+    })
 --]]
 
 return ArrayFieldLibrary
