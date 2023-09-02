@@ -2458,6 +2458,13 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 			function DropdownSettings:Refresh(NewOptions,Selecteds)
 				DropdownSettings.Items = {}
 				DropdownSettings.Items.Selected = {}
+				local Success, Response = pcall(function()
+					DropdownSettings.Callback(NewOptions, DropdownSettings.Items.Selected)
+				end)
+				if not Success then
+					Error('Callback Error')
+					print("ArrayField | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+				end
 				for _, option in ipairs(Dropdown.List:GetChildren()) do
 					if option.ClassName == "Frame" and option ~= SearchBar and option.Name ~= "Placeholder" then
 						option:Destroy()
