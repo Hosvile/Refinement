@@ -2318,6 +2318,13 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 						table.remove(DropdownSettings.Items.Selected,table.find(DropdownSettings.Items.Selected,OptionInTable))
 						RefreshSelected()
 						TweenService:Create(DropdownOption, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+						local Success, Response = pcall(function()
+							DropdownSettings.Callback(Option, OptionInTable.Selected)
+						end)
+						if not Success then
+							Error('Callback Error')
+							print("ArrayField | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+						end
 						SaveConfiguration()
 						return
 					end
