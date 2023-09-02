@@ -2315,7 +2315,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 					if DropdownOption.BackgroundColor3 == Color3.fromRGB(30, 30, 30) then OptionInTable.Selected = false else OptionInTable.Selected = true end
 					if OptionInTable.Selected then
 						local Success, Response = pcall(function()
-							DropdownSettings.Callback(Option, false)
+							DropdownSettings.Callback(Option, DropdownSettings.Items.Selected)
 						end)
 						if not Success then
 							Error('Callback Error')
@@ -2343,7 +2343,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 					end
 
 					local Success, Response = pcall(function()
-						DropdownSettings.Callback(Option, true)
+						DropdownSettings.Callback(Option, DropdownSettings.Items.Selected)
 					end)
 					if not Success then
 						Error('Callback Error')
@@ -2421,7 +2421,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 					}
 					table.insert(DropdownSettings.Items.Selected,Items)
 					local Success, Response = pcall(function()
-						DropdownSettings.Callback(OldNewOption, true)
+						DropdownSettings.Callback(OldNewOption, DropdownSettings.Items.Selected)
 					end)
 					if not Success then
 						TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
