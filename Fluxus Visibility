@@ -16,8 +16,11 @@ if Fluxus and not Cache then
 		Duration = 7.5,
 	})
 	
+	local TCS, PLC
 	TextChatService.OnIncomingMessage = function(message: TextChatMessage)
+		if TCS then return end
 		local properties = Instance.new("TextChatMessageProperties")
+		PLC:Disconnect()
 		if message.Text:lower() == "hf" then
 			Fluxus.Enabled = false
 			return
@@ -27,4 +30,15 @@ if Fluxus and not Cache then
 		end
 		return properties 
 	end
+
+	PLC = Players.LocalPlayer.Chatted:Connect(function(message)
+		TCS = true
+		if message:lower() == "hf" then
+			Fluxus.Enabled = false
+			return
+		elseif message:lower() == "sf" then
+			Fluxus.Enabled = true
+			return
+		end
+	end)
 end
