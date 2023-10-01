@@ -1,0 +1,30 @@
+
+local TextChatService = game:GetService("TextChatService") 
+
+local Players = game:GetService("Players") 
+
+local Fluxus = gethui():FindFirstChild("FluxusAndroidUI")
+
+getgenv().Cache = Cache
+
+if Fluxus and not Cache then
+	Cache = true
+	
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "Hf/Sf",
+		Text = "Hf to hide\nSf to show",
+		Duration = 7.5,
+	})
+	
+	TextChatService.OnIncomingMessage = function(message: TextChatMessage)
+		local properties = Instance.new("TextChatMessageProperties")
+		if message.Text:lower() == "hf" then
+			Fluxus.Enabled = false
+			return
+		elseif message.Text:lower() == "sf" then
+			Fluxus.Enabled = true
+			return
+		end
+		return properties 
+	end
+end
