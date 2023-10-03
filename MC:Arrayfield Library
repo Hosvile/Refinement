@@ -683,6 +683,7 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 		local ActionCompleted = true
 		local Notification = Notifications.Template:Clone()
 		Notification.Parent = Notifications
+		Notification.Active = false
 		Notification.Name = NotificationSettings.Title or "Unknown Title"
 		Notification.Visible = true
 
@@ -703,6 +704,7 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 			for _, Action in pairs(NotificationSettings.Actions) do
 				ActionCompleted = false
 				local NewAction = Notification.Actions.Template:Clone()
+				NewAction.Active = false
 				NewAction.BackgroundColor3 = SelectedTheme.NotificationActionsBackground
 				if SelectedTheme ~= ArrayFieldLibrary.Theme.Default then
 					NewAction.TextColor3 = SelectedTheme.TextColor
@@ -743,6 +745,12 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 		Notification.Parent = Notifications
 		Notification.Size = UDim2.new(0, 260, 0, 80)
 		Notification.BackgroundTransparency = 1
+		
+		for i, v in pairs(Notification:GetDescendants()) do
+			if v:IsA("GuiObject") and v.Active then
+				v.Active = false
+			end
+		end
 
 		TweenService:Create(Notification, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 295, 0, 91)}):Play()
 		TweenService:Create(Notification, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.1}):Play()
@@ -841,6 +849,7 @@ function CloseSideBar()
 	wait(0.2)
 	Debounce = false
 end
+local hasHidden = false
 function Hide()
 	if not SideBarClosed then
 		spawn(CloseSideBar)
@@ -849,7 +858,11 @@ function Hide()
 		FadeDescription(nil,true,true)
 	end)
 	Debounce = true
-	ArrayFieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 7})
+	if not hasHidden then
+		hasHidden = true
+		ArrayFieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 10})
+		--delay(60, function() hasHidden = false end)
+	end
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 470, 0, 400)}):Play()
 	TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 470, 0, 45)}):Play()
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
@@ -1194,6 +1207,7 @@ function Minimise()
 	Debounce = false
 end
 
+local KeyMainUI
 function ArrayFieldLibrary:CreateWindow(Settings)
 	ArrayField.Enabled = false
 	local Passthrough = false
@@ -1278,7 +1292,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 
 		end
 	end
-
+	
 	if Settings.KeySystem then
 		if not Settings.KeySettings then
 			Passthrough = true
@@ -1327,6 +1341,8 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 			KeyMain.Title.Text = Settings.KeySettings.Title or Settings.Name
 			KeyMain.Subtitle.Text = Settings.KeySettings.Subtitle or "Key System"
 			KeyMain.NoteMessage.Text = Settings.KeySettings.Note or "No instructions"
+			
+			KeyMainUI = KeyMain
 
 			KeyMain.Size = UDim2.new(0, 467, 0, 175)
 			KeyMain.BackgroundTransparency = 1
@@ -2316,8 +2332,6 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 					if OptionInTable.Selected then
 						OptionInTable.Selected = false
 						table.remove(DropdownSettings.Items.Selected,table.find(DropdownSettings.Items.Selected,OptionInTable))
-						RefreshSelected()
-						TweenService:Create(DropdownOption, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 						local Success, Response = pcall(function()
 							DropdownSettings.Callback(Option, DropdownSettings.Items.Selected)
 						end)
@@ -2325,6 +2339,8 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 							Error('Callback Error')
 							print("ArrayField | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
 						end
+						RefreshSelected()
+						TweenService:Create(DropdownOption, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
 						SaveConfiguration()
 						return
 					end
@@ -3442,11 +3458,6 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 	return Window
 end
 
-
-function ArrayFieldLibrary:Destroy()
-	ArrayField:Destroy()
-end
-
 Topbar.ChangeSize.MouseButton1Click:Connect(function()
 	if Debounce then return end
 	if Minimised then
@@ -3491,6 +3502,7 @@ Topbar.Hide.MouseButton1Click:Connect(function()
 	end
 end)
 
+--[[
 local ContextActionService = game:GetService("ContextActionService")
 
 ContextActionService:BindAction("Field",function(name,inputState,inputObject)
@@ -3504,15 +3516,54 @@ ContextActionService:BindAction("Field",function(name,inputState,inputObject)
 		Hide()
 	end
 end,true)
+--]]
 
 local FieldScreen = Instance.new("ScreenGui")
+FieldScreen.DisplayOrder = 100
 FieldScreen.Parent = gethui and gethui()
+FieldScreen.Name = "Uni" .. tostring(math.random(1000,9999))
 
+local UniButton = Instance.new("ImageButton")
+UniButton.Name = "UniButton"
+UniButton.Image = "rbxassetid://14958620447"
+UniButton.AnchorPoint = Vector2.new(1,1)
+UniButton.ZIndex = 10
+UniButton.Position = UDim2.new(0.975,0,0.95,0)
+UniButton.BorderSizePixel = 0
+UniButton.BackgroundTransparency = 0.95
+UniButton.Size = UDim2.new(0, 60, 0, 60)
+UniButton.Parent = FieldScreen
+
+function ArrayFieldLibrary:Destroy()
+	ArrayField:Destroy()
+	FieldScreen:Destroy()
+	if KeyMainUI then KeyMainUI:Destroy() end
+	if KeyUI then KeyUI:Destroy() end
+end
+
+UniButtonClicked = function(name,inputState,inputObject)
+	if Debounce then return end
+	if Hidden then
+		Hidden = false
+		Unhide()
+	else
+		if not SearchHided then spawn(CloseSearch) end
+		Hidden = true
+		Hide()
+	end
+end
+
+UniButton.MouseButton1Click:Connect(UniButtonClicked)
+
+--[[
 local Field = ContextActionService:GetButton("Field")
+Field.Active = true
 Field.Parent.Parent = FieldScreen
 Field.ActionTitle.Text = "ArrayField"
 Field.AnchorPoint = Vector2.new(1,1)
+Field.ZIndex = 10
 Field.Position = UDim2.new(0.95,0,0.95,0)
+--]]
 
 UserInputService.InputBegan:Connect(function(input, processed)
 	if (input.KeyCode == Enum.KeyCode.RightShift and not processed) then
