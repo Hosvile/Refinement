@@ -1,6 +1,6 @@
-game:GetService("StarterGui"):SetCore("DevConsoleVisible",true)
+--game:GetService("StarterGui"):SetCore("DevConsoleVisible",true)
 
-
+warn("exed")
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -11,13 +11,6 @@ local Camera = workspace.CurrentCamera
 
 local script = Local.Character:WaitForChild("BaseUIS")
 
-local function Walking()
-	local Humanoid = Local.Character and Local.Character:FindFirstChildWhichIsA("Humanoid")
-	if Humanoid.MoveDirection.Magnitude > 0 then
-		return true
-	end
-end
-
 local Held, Tap = {}, nil
 UserInputService.InputBegan:Connect(function(input)
 	local start = os.clock()
@@ -26,7 +19,7 @@ UserInputService.InputBegan:Connect(function(input)
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
 				local time = os.clock()-start
-				if time <= 0.25 then
+				if time <= 0.125 then
 					Tap = input
 				end
 				table.remove(Held, table.find(Held, input))
@@ -38,18 +31,10 @@ end)
 local old; old = hookmetamethod(game, "__namecall", function(self, ...)
 	local args, method = {...}, getnamecallmethod()
 	if method == "FireServer" and self.Name == "ParryAttempt" and Tap then
-		args[3] = {}
-		for i, v in pairs(Players.GetPlayers(Players)) do
-			local UserId, HumanoidRootPart = tostring(UserId), v.Character and v.Character.FindFirstChild(v.Character, "HumanoidRootPart")
-			if HumanoidRootPart and not args[3][UserId] and v ~= Local then
-				--print(v)
-				args[3][UserId] = Camera.WorldToScreenPoint(Camera, HumanoidRootPart.Position)
-			end
-		end
 		local Hit = Tap
 		--warn(unpack(args[4]))
-		args[4][1] = Hit.Position.X
-		args[4][2] = Hit.Position.Y
+		args[4][1] = math.floor(Hit.Position.X)
+		args[4][2] = math.floor(Hit.Position.Y)
 		--warn(unpack(args[4]))
 		Tap = nil
 	elseif method == "FireServer" and self.Name == "ParryAttempt" and not Tap then
