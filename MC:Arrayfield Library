@@ -3521,8 +3521,8 @@ end,true)
 local FieldScreen = Instance.new("ScreenGui")
 FieldScreen.DisplayOrder = 100
 FieldScreen.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
-FieldScreen.Parent = gethui and gethui() or game:GetService("CoreGui")
 FieldScreen.Name = "Uni" .. tostring(math.random(1000,9999))
+FieldScreen.Parent = gethui and gethui() or game:GetService("CoreGui")
 
 local UniButton = Instance.new("ImageLabel")
 UniButton.Name = "UniButton"
@@ -3549,6 +3549,8 @@ UniBoxButton.BackgroundTransparency = 1
 UniBoxButton.Text = ""
 UniBoxButton.SizeConstraint = Enum.SizeConstraint.RelativeXY
 UniBoxButton.Parent = UniButton
+
+ArrayFieldLibrary.UniButton = UniButton
 
 function ArrayFieldLibrary:Destroy()
 	ArrayField:Destroy()
