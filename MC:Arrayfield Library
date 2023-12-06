@@ -695,8 +695,7 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 			blurlight.FocusDistance = 51.6
 			blurlight.InFocusRadius = 50
 			blurlight.NearIntensity = 1
-			local S, E = pcall(function() game:GetService("Debris"):AddItem(script,0) end)
-			if not S and E then script:Destroy() end
+			if script then game:GetService("Debris"):AddItem(script,0) end
 		end
 
 		Notification.Actions.Template.Visible = false
