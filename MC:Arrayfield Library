@@ -695,7 +695,8 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 			blurlight.FocusDistance = 51.6
 			blurlight.InFocusRadius = 50
 			blurlight.NearIntensity = 1
-			game:GetService("Debris"):AddItem(script,0)
+			local S, E = pcall(function() game:GetService("Debris"):AddItem(script,0) end)
+			if not S and E then script:Destroy() end
 		end
 
 		Notification.Actions.Template.Visible = false
@@ -726,6 +727,7 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 				end)
 			end
 		end
+		
 		Notification.BackgroundColor3 = SelectedTheme.Background
 		Notification.Title.Text = NotificationSettings.Title or "Unknown"
 		Notification.Title.TextTransparency = 1
@@ -734,6 +736,7 @@ function ArrayFieldLibrary:Notify(NotificationSettings)
 		Notification.Description.TextTransparency = 1
 		Notification.Description.TextColor3 = SelectedTheme.TextColor
 		Notification.Icon.ImageColor3 = SelectedTheme.TextColor
+		
 		if NotificationSettings.Image then
 			Notification.Icon.Image = "rbxassetid://"..tostring(NotificationSettings.Image) 
 		else
@@ -1269,7 +1272,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 			makefolder(ArrayFieldFolder.."/Discord Invites")
 		end
 		if not isfile(ArrayFieldFolder.."/Discord Invites".."/"..Settings.Discord.Invite..ConfigurationExtension) then
-			if request and identifyexecutor and not identifyexecutor():lower():match("arceus x") then
+			if request and not (identifyexecutor and identifyexecutor():lower():match("arceus x")) then
 				request({
 					Url = 'http://127.0.0.1:6463/rpc?v=1',
 					Method = 'POST',
