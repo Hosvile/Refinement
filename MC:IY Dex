@@ -1,0 +1,5 @@
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "Outdated DEX",
+		Text = "'Meow' -Hosvile",
+		Duration = 5
+	})
